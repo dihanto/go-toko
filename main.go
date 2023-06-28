@@ -40,6 +40,11 @@ func main() {
 		usecase := usecase.NewWalletUsecase(repository, db, validate, timeout)
 		controller.NewWalletController(usecase, router)
 	}
+	{
+		repository := repository.NewOrderRepositoryImpl()
+		usecase := usecase.NewOrderUsecaseImpl(repository, db, validate, timeout)
+		controller.NewOrderControllerImpl(usecase, router)
+	}
 	server := http.Server{
 		Addr:    "localhost:2000",
 		Handler: router,

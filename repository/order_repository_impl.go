@@ -10,9 +10,13 @@ import (
 type OrderRepositoryImpl struct {
 }
 
+func NewOrderRepositoryImpl() OrderRepository {
+	return &OrderRepositoryImpl{}
+}
+
 func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx, request entity.Order) (order entity.Order, err error) {
 	queryOrder := "INSERT INTO orders (id_product, id_customer, quantity) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, queryOrder, request.IdProduct, request.IdCustomer, request.Quantity).Scan(&order.Id)
+	err = tx.QueryRowContext(ctx, queryOrder, request.IdProduct, request.IdCustomer, request.Quantity).Scan(&request.Id)
 	if err != nil {
 		return
 	}
@@ -36,6 +40,13 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 		return
 	}
 
+	order = entity.Order{
+		Id:         request.Id,
+		IdProduct:  request.IdProduct,
+		IdCustomer: request.IdCustomer,
+		Quantity:   request.Quantity,
+	}
+
 	return
 
 }
@@ -46,6 +57,8 @@ func (repository *OrderRepositoryImpl) FindOrder(ctx context.Context, tx *sql.Tx
 	if err != nil {
 		return
 	}
+
+	order.Id = id
 
 	return
 }

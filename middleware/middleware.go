@@ -26,6 +26,7 @@ func MindMiddleware(next httprouter.Handle) httprouter.Handle {
 		token, err := helper.ParseJWTString(tokenString)
 		if err != nil || !token.Valid {
 			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 
 		next(writer, request, param)
@@ -44,6 +45,7 @@ func ProductMiddleware(next httprouter.Handle) httprouter.Handle {
 		token, err := helper.ParseJWTString(tokenString)
 		if err != nil || !token.Valid {
 			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 
 		role, err := helper.GenerateRoleFromToken(token)
@@ -52,6 +54,37 @@ func ProductMiddleware(next httprouter.Handle) httprouter.Handle {
 		}
 
 		if role != "seller" {
+			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(writer, request, param)
+
+	}
+
+}
+
+func OrderMiddleware(next httprouter.Handle) httprouter.Handle {
+	return func(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
+		authHeader := request.Header.Get("Authorization")
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == "" {
+			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		token, err := helper.ParseJWTString(tokenString)
+		if err != nil || !token.Valid {
+			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		role, err := helper.GenerateRoleFromToken(token)
+		if err != nil {
+			log.Println(err)
+		}
+
+		if role != "customer" {
 			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
 			return
 		}

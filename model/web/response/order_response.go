@@ -14,6 +14,7 @@ type FindOrder struct {
 	IdProduct  int           `json:"id_product"`
 	IdCustomer uuid.UUID     `json:"id_customer"`
 	Quantity   int           `json:"quantity"`
+	TotalPrice int           `json:"total_price"`
 	Product    ProductOrder  `json:"product"`
 	Customer   CustomerOrder `json:"customer"`
 }

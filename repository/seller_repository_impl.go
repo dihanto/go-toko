@@ -58,6 +58,9 @@ func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, tx *sq
 			return
 		}
 	}
+
+	seller.Email = request.Email
+
 	return
 }
 
