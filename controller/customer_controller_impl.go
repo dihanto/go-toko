@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/middleware"
 	"github.com/dihanto/go-toko/model/web/request"
@@ -37,13 +38,13 @@ func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseW
 	customer := request.CustomerRegister{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	customerResponse, err := controller.Usecase.RegisterCustomer(req.Context(), customer)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -53,9 +54,10 @@ func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseW
 		Data:    customerResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -63,27 +65,27 @@ func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseW
 
 func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerLogin{}
-	if err := json.NewDecoder(req.Body).Decode(&customer); err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+	err := json.NewDecoder(req.Body).Decode(&customer)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-
 	email := customer.Email
 	password := customer.Password
 
 	id, ok, err := controller.Usecase.LoginCustomer(req.Context(), email, password)
-	if !ok {
-		http.Error(writer, "Unathorized", http.StatusUnauthorized)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+	if !ok {
+		exception.ErrorHandler(writer, req, ok)
 		return
 	}
 
 	tokenString, err := helper.GenerateCustomerJWTToken(id)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -93,24 +95,24 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 		Data:    tokenString,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(writer).Encode(webResponse); err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-
 }
 
 func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerUpdate{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	customerResponse, err := controller.Usecase.UpdateCustomer(req.Context(), customer)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -119,24 +121,27 @@ func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWri
 		Message: "Customer successfully updated",
 		Data:    customerResponse,
 	}
+
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-
 }
 
 func (controller *CustomerControllerImpl) DeleteCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerDelete{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
+		return
 	}
 
 	err = controller.Usecase.DeleteCustomer(req.Context(), customer.Email)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
+		return
 	}
 	webResponse := response.WebResponse{
 		Code:    http.StatusOK,
@@ -146,7 +151,7 @@ func (controller *CustomerControllerImpl) DeleteCustomer(writer http.ResponseWri
 	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }

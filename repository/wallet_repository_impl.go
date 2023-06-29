@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/dihanto/go-toko/model/entity"
+	"github.com/google/uuid"
 )
 
 type WalletRepositoryImpl struct {
@@ -27,24 +28,24 @@ func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, tx *sql.T
 	return
 }
 
-func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.Tx, id int) (wallet entity.Wallet, err error) {
-	query := "SELECT balance FROM wallet WHERE id=$1"
-	tx.QueryRowContext(ctx, query, id).Scan(&wallet.Balance)
-	wallet.Id = id
+func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.Tx, idCustomer uuid.UUID) (wallet entity.Wallet, err error) {
+	query := "SELECT id,balance FROM wallet WHERE id_customer=$1"
+	tx.QueryRowContext(ctx, query, idCustomer).Scan(&wallet.Id, &wallet.Balance)
+	wallet.IdCustomer = idCustomer
 
 	return
 }
 
 func (repository *WalletRepositoryImpl) UpdateWallet(ctx context.Context, tx *sql.Tx, request entity.Wallet) (wallet entity.Wallet, err error) {
-	query := "UPDATE wallet SET balance=$1 WHERE id=$2"
-	_, err = tx.ExecContext(ctx, query, request.Balance, request.Id)
+	query := "UPDATE wallet SET balance=balance+$1 WHERE id_customer=$2"
+	_, err = tx.ExecContext(ctx, query, request.Balance, request.IdCustomer)
 	if err != nil {
 		return
 	}
 
 	wallet = entity.Wallet{
-		Id:      request.Id,
-		Balance: request.Balance,
+		IdCustomer: request.IdCustomer,
+		Balance:    request.Balance,
 	}
 
 	return

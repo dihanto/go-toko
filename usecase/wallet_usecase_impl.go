@@ -10,6 +10,7 @@ import (
 	"github.com/dihanto/go-toko/model/web/response"
 	"github.com/dihanto/go-toko/repository"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type WalletUsecaseImpl struct {
@@ -50,15 +51,14 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 	return
 }
 
-func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, id int) (wallet response.GetWallet, err error) {
+func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid.UUID) (wallet response.GetWallet, err error) {
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
 	}
-
 	defer helper.CommitOrRollback(tx)
 
-	response, err := usecase.Repository.GetWallet(ctx, tx, id)
+	response, err := usecase.Repository.GetWallet(ctx, tx, idCustomer)
 	if err != nil {
 		return
 	}
@@ -76,8 +76,8 @@ func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request requ
 	defer helper.CommitOrRollback(tx)
 
 	requestRepo := entity.Wallet{
-		Id:      request.Id,
-		Balance: request.Balance,
+		IdCustomer: request.IdCustomer,
+		Balance:    request.Balance,
 	}
 
 	response, err := usecase.Repository.UpdateWallet(ctx, tx, requestRepo)

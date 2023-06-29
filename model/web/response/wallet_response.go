@@ -9,11 +9,12 @@ type AddWallet struct {
 }
 
 type GetWallet struct {
-	Id      int `json:"id"`
-	Balance int `json:"balance"`
+	Id         int       `json:"id"`
+	IdCustomer uuid.UUID `json:"id_customer"`
+	Balance    int       `json:"balance"`
 }
 
 type UpdateWallet struct {
-	Id      int `json:"id"`
-	Balance int `json:"balance"`
+	IdCustomer uuid.UUID `json:"id_customer"`
+	Balance    int       `json:"balance"`
 }

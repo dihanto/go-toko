@@ -30,7 +30,7 @@ func (repository *ProductRepositoryImpl) AddProduct(ctx context.Context, tx *sql
 }
 
 func (repository *ProductRepositoryImpl) GetProduct(ctx context.Context, tx *sql.Tx) (products []entity.Product, err error) {
-	query := "SELECT id, name, price FROM products"
+	query := "SELECT id, name, price FROM products WHERE deleted_at IS NULL"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return

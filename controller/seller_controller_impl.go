@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/middleware"
 	"github.com/dihanto/go-toko/model/web/request"
@@ -38,13 +39,13 @@ func (controller *SellerControllerImpl) RegisterSeller(writer http.ResponseWrite
 	seller := request.SellerRegister{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
 	if err != nil {
-		http.Error(writer, "invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	sellerResponse, err := controller.Usecase.RegisterSeller(req.Context(), seller)
 	if err != nil {
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -54,9 +55,10 @@ func (controller *SellerControllerImpl) RegisterSeller(writer http.ResponseWrite
 		Data:    sellerResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -65,23 +67,23 @@ func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, 
 	seller := request.SellerLogin{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	id, result, err := controller.Usecase.LoginSeller(req.Context(), seller)
 	if !result {
-		http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	tokenString, err := helper.GenerateSellerJWTToken(id)
 	if err != nil {
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -91,9 +93,10 @@ func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, 
 		Data:    tokenString,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webRespone)
 	if err != nil {
-		http.Error(writer, "Failed to Encode response", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -103,13 +106,13 @@ func (controller *SellerControllerImpl) UpdateSeller(writer http.ResponseWriter,
 	seller := request.SellerUpdate{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	sellerResponse, err := controller.Usecase.UpdateSeller(req.Context(), seller)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -119,9 +122,10 @@ func (controller *SellerControllerImpl) UpdateSeller(writer http.ResponseWriter,
 		Data:    sellerResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "Failed to Encode response", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -130,13 +134,13 @@ func (controller *SellerControllerImpl) DeleteSeller(writer http.ResponseWriter,
 	seller := request.SellerDelete{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
 	if err != nil {
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	err = controller.Usecase.DeleteSeller(req.Context(), seller)
 	if err != nil {
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -145,9 +149,10 @@ func (controller *SellerControllerImpl) DeleteSeller(writer http.ResponseWriter,
 		Message: "Seller successfully deleted",
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		http.Error(writer, "Failed to encode response", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 

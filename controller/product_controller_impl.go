@@ -2,11 +2,11 @@ package controller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/middleware"
 	"github.com/dihanto/go-toko/model/web/request"
@@ -41,8 +41,7 @@ func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, 
 	request := request.AddProduct{}
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -50,15 +49,13 @@ func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	request.IdSeller, err = helper.GenerateIdFromToken(tokenString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	productResponse, err := controller.Usecase.AddProduct(req.Context(), request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 	webResponse := response.WebResponse{
@@ -67,10 +64,10 @@ func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, 
 		Data:    productResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -78,8 +75,7 @@ func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, 
 func (controller *ProductControllerImpl) GetProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	productResponses, err := controller.Usecase.GetProduct(req.Context())
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -89,10 +85,10 @@ func (controller *ProductControllerImpl) GetProduct(writer http.ResponseWriter, 
 		Data:    productResponses,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -101,14 +97,12 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 	productResponse, err := controller.Usecase.FindById(req.Context(), id)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -118,10 +112,10 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 		Data:    productResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webReponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -130,22 +124,19 @@ func (controller *ProductControllerImpl) UpdateProduct(writer http.ResponseWrite
 	request := request.UpdateProduct{}
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 	idString := param.ByName("id")
 	request.Id, err = strconv.Atoi(idString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	productResponse, err := controller.Usecase.UpdateProduct(req.Context(), request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -155,10 +146,11 @@ func (controller *ProductControllerImpl) UpdateProduct(writer http.ResponseWrite
 		Data:    productResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webRespones)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
+		return
 	}
 }
 
@@ -166,15 +158,13 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	err = controller.Usecase.DeleteProduct(req.Context(), id)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -183,10 +173,10 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 		Message: "Product success deleted",
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }

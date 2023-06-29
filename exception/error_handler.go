@@ -2,15 +2,17 @@ package exception
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/dihanto/go-toko/helper"
-	"github.com/dihanto/go-toko/model/web"
+	"github.com/dihanto/go-toko/model/web/response"
 	"github.com/go-playground/validator/v10"
 )
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
-	if notFoundError(writer, request, err) {
+	if err == false {
+		loginFailError(writer, request, err)
 		return
 	}
 	if validationError(writer, request, err) {
@@ -18,16 +20,17 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 	}
 	internalServerError(writer, request, err)
 }
+
 func validationError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
 	exception, ok := err.(validator.ValidationErrors)
 	if ok {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusBadRequest)
 
-		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "Bad Request",
-			Data:   exception.Error(),
+		webResponse := response.WebResponse{
+			Code:    http.StatusBadRequest,
+			Message: "Bad Request",
+			Data:    exception.Error(),
 		}
 
 		writer.Header().Add("Content-Type", "application/json")
@@ -39,34 +42,30 @@ func validationError(writer http.ResponseWriter, request *http.Request, err inte
 	}
 
 }
-func notFoundError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
-	exception, ok := err.(NotFoundError)
-	if ok {
-		writer.Header().Set("Content-type", "application/json")
-		writer.WriteHeader(http.StatusNotFound)
 
-		webResponse := web.WebResponse{
-			Code:   http.StatusNotFound,
-			Status: "Not Found",
-			Data:   exception.Error,
-		}
+func loginFailError(writer http.ResponseWriter, request *http.Request, err interface{}) {
+	writer.Header().Set("Content-type", "application/json")
+	writer.WriteHeader(http.StatusInternalServerError)
 
-		writer.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(writer).Encode(webResponse)
-		return true
-	} else {
-		return false
+	webResponse := response.WebResponse{
+		Code:    http.StatusUnauthorized,
+		Message: "Unauthorized",
+		Data:    err,
 	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(webResponse)
+
 }
 
 func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
 	writer.WriteHeader(http.StatusInternalServerError)
 
-	webResponse := web.WebResponse{
-		Code:   http.StatusInternalServerError,
-		Status: "Internal Server Error",
-		Data:   err,
+	webResponse := response.WebResponse{
+		Code:    http.StatusInternalServerError,
+		Message: "Internal Server Error",
+		Data:    fmt.Sprintf("%v", err),
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

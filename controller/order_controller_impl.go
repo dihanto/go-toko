@@ -2,11 +2,11 @@ package controller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/middleware"
 	"github.com/dihanto/go-toko/model/web/request"
@@ -39,8 +39,7 @@ func (controller *OrderControllerImpl) AddOrder(writer http.ResponseWriter, req 
 	request := request.AddOrder{}
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -48,15 +47,13 @@ func (controller *OrderControllerImpl) AddOrder(writer http.ResponseWriter, req 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	request.IdCustomer, err = helper.GenerateIdFromToken(tokenString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	orderResponse, err := controller.Usecase.AddOrder(req.Context(), request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -66,10 +63,10 @@ func (controller *OrderControllerImpl) AddOrder(writer http.ResponseWriter, req 
 		Data:    orderResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -79,15 +76,13 @@ func (controller *OrderControllerImpl) FindOrder(writer http.ResponseWriter, req
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	orderResponse, err := controller.Usecase.FindOrder(req.Context(), id)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -97,11 +92,10 @@ func (controller *OrderControllerImpl) FindOrder(writer http.ResponseWriter, req
 		Data:    orderResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-
 }

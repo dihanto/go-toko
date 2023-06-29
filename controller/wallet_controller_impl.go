@@ -2,11 +2,10 @@ package controller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/middleware"
 	"github.com/dihanto/go-toko/model/web/request"
@@ -31,31 +30,28 @@ func NewWalletController(usecase usecase.WalletUsecase, route *httprouter.Router
 
 func (controller *WalletControllerImpl) router(route *httprouter.Router) {
 	route.POST("/wallet", middleware.MindMiddleware(controller.AddWallet))
-	route.GET("/wallet/:id", middleware.MindMiddleware(controller.GetWallet))
-	route.PUT("/wallet/:id", middleware.MindMiddleware(controller.UpdateWallet))
+	route.GET("/wallet/", middleware.MindMiddleware(controller.GetWallet))
+	route.PUT("/wallet/", middleware.MindMiddleware(controller.UpdateWallet))
 }
 
 func (controller *WalletControllerImpl) AddWallet(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.AddWallet{}
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "invalid request body", http.StatusBadRequest)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 	authHeader := req.Header.Get("Authorization")
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	request.IdCustomer, err = helper.GenerateIdFromToken(tokenString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	walletResponse, err := controller.Usecase.AddWallet(req.Context(), request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -65,27 +61,26 @@ func (controller *WalletControllerImpl) AddWallet(writer http.ResponseWriter, re
 		Data:    walletResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
 
 func (controller *WalletControllerImpl) GetWallet(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
-	idString := param.ByName("id")
-	id, err := strconv.Atoi(idString)
+	authHeader := req.Header.Get("Authorization")
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	idCustomer, err := helper.GenerateIdFromToken(tokenString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
-	walletResponse, err := controller.Usecase.GetWallet(req.Context(), id)
+	walletResponse, err := controller.Usecase.GetWallet(req.Context(), idCustomer)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -95,10 +90,10 @@ func (controller *WalletControllerImpl) GetWallet(writer http.ResponseWriter, re
 		Data:    walletResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 }
@@ -107,23 +102,20 @@ func (controller *WalletControllerImpl) UpdateWallet(writer http.ResponseWriter,
 	request := request.UpdateWallet{}
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "invalid response body", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
-
-	idString := param.ByName("id")
-	request.Id, err = strconv.Atoi(idString)
+	authHeader := req.Header.Get("Authorization")
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	request.IdCustomer, err = helper.GenerateIdFromToken(tokenString)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
 	walletResponse, err := controller.Usecase.UpdateWallet(req.Context(), request)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 
@@ -133,10 +125,10 @@ func (controller *WalletControllerImpl) UpdateWallet(writer http.ResponseWriter,
 		Data:    walletResponse,
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(webResponse)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, "internal server error", http.StatusInternalServerError)
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 

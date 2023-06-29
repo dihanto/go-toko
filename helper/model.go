@@ -14,6 +14,7 @@ func ToResponseCustomerRegister(customer entity.Customer) response.CustomerRegis
 		RegisteredAt: time.Unix(int64(customer.RegisteredAt), 0),
 	}
 }
+
 func ToResponseCustomerUpdate(customer entity.Customer) response.CustomerUpdate {
 	return response.CustomerUpdate{
 		Email:        customer.Email,
@@ -22,6 +23,7 @@ func ToResponseCustomerUpdate(customer entity.Customer) response.CustomerUpdate 
 		UpdatedAt:    time.Unix(int64(customer.UpdatedAt), 0),
 	}
 }
+
 func ToResponseSellerRegister(seller entity.Seller) response.SellerRegister {
 	return response.SellerRegister{
 		Email:        seller.Email,
@@ -29,6 +31,7 @@ func ToResponseSellerRegister(seller entity.Seller) response.SellerRegister {
 		RegisteredAt: time.Unix(int64(seller.RegisteredAt), 0),
 	}
 }
+
 func ToResponseSellerUpdate(seller entity.Seller) response.SellerUpdate {
 	return response.SellerUpdate{
 		Email:        seller.Email,
@@ -82,15 +85,16 @@ func ToResponseAddWallet(wallet entity.Wallet) response.AddWallet {
 
 func ToResponseGetWallet(wallet entity.Wallet) response.GetWallet {
 	return response.GetWallet{
-		Id:      wallet.Id,
-		Balance: wallet.Balance,
+		Id:         wallet.Id,
+		IdCustomer: wallet.IdCustomer,
+		Balance:    wallet.Balance,
 	}
 }
 
 func ToResponseUpdateWallet(wallet entity.Wallet) response.UpdateWallet {
 	return response.UpdateWallet{
-		Id:      wallet.Id,
-		Balance: wallet.Balance,
+		IdCustomer: wallet.IdCustomer,
+		Balance:    wallet.Balance,
 	}
 }
 
