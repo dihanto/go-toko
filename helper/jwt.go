@@ -32,6 +32,7 @@ func GenerateSellerJWTToken(id uuid.UUID) (string, error) {
 
 	return token.SignedString([]byte(JWTSecret))
 }
+
 func ParseJWTString(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return []byte(JWTSecret), nil

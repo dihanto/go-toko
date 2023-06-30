@@ -6,7 +6,7 @@ import (
 
 	"github.com/dihanto/go-toko/config"
 	"github.com/dihanto/go-toko/controller"
-	"github.com/dihanto/go-toko/helper"
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/repository"
 	"github.com/dihanto/go-toko/usecase"
 	"github.com/go-playground/validator/v10"
@@ -44,11 +44,13 @@ func main() {
 		usecase := usecase.NewOrderUsecaseImpl(repository, db, validate, timeout)
 		controller.NewOrderControllerImpl(usecase, router)
 	}
+
 	server := http.Server{
 		Addr:    "localhost:2000",
 		Handler: router,
 	}
+
 	fmt.Println("server running")
 	err := server.ListenAndServe()
-	helper.PanicIfError(err)
+	exception.ErrorHandler(nil, nil, err)
 }

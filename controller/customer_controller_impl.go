@@ -73,13 +73,13 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 	email := customer.Email
 	password := customer.Password
 
-	id, ok, err := controller.Usecase.LoginCustomer(req.Context(), email, password)
-	if err != nil {
-		exception.ErrorHandler(writer, req, err)
+	id, result, err := controller.Usecase.LoginCustomer(req.Context(), email, password)
+	if !result {
+		exception.ErrorHandler(writer, req, result)
 		return
 	}
-	if !ok {
-		exception.ErrorHandler(writer, req, ok)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
 		return
 	}
 

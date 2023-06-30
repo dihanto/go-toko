@@ -73,7 +73,7 @@ func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, 
 
 	id, result, err := controller.Usecase.LoginSeller(req.Context(), seller)
 	if !result {
-		exception.ErrorHandler(writer, req, err)
+		exception.ErrorHandler(writer, req, result)
 		return
 	}
 	if err != nil {

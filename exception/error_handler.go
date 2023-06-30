@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/model/web/response"
 	"github.com/go-playground/validator/v10"
 )
 
 func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
-	if err == false {
-		loginFailError(writer, request, err)
+	if err == false || err == "" {
+		unauthorized(writer, request, err)
 		return
 	}
 	if validationError(writer, request, err) {
@@ -34,8 +33,8 @@ func validationError(writer http.ResponseWriter, request *http.Request, err inte
 		}
 
 		writer.Header().Add("Content-Type", "application/json")
-		err := json.NewEncoder(writer).Encode(webResponse)
-		helper.PanicIfError(err)
+		json.NewEncoder(writer).Encode(webResponse)
+
 		return true
 	} else {
 		return false
@@ -43,9 +42,33 @@ func validationError(writer http.ResponseWriter, request *http.Request, err inte
 
 }
 
-func loginFailError(writer http.ResponseWriter, request *http.Request, err interface{}) {
+func unauthorized(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
 	writer.WriteHeader(http.StatusInternalServerError)
+
+	if err == "" {
+		webResponse := response.WebResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+			Data:    "JWT token cannot be empty",
+		}
+
+		writer.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(writer).Encode(webResponse)
+		return
+	}
+
+	if err == false {
+		webResponse := response.WebResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+			Data:    "Login failed",
+		}
+
+		writer.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(writer).Encode(webResponse)
+		return
+	}
 
 	webResponse := response.WebResponse{
 		Code:    http.StatusUnauthorized,

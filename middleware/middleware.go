@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
+	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
@@ -19,13 +19,13 @@ func MindMiddleware(next httprouter.Handle) httprouter.Handle {
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == "" {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, tokenString)
 			return
 		}
 
 		token, err := helper.ParseJWTString(tokenString)
 		if err != nil || !token.Valid {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, err)
 			return
 		}
 
@@ -38,23 +38,24 @@ func ProductMiddleware(next httprouter.Handle) httprouter.Handle {
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == "" {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, tokenString)
 			return
 		}
 
 		token, err := helper.ParseJWTString(tokenString)
 		if err != nil || !token.Valid {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, err)
 			return
 		}
 
 		role, err := helper.GenerateRoleFromToken(token)
 		if err != nil {
-			log.Println(err)
+			exception.ErrorHandler(writer, request, err)
+			return
 		}
 
 		if role != "seller" {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, false)
 			return
 		}
 
@@ -69,23 +70,24 @@ func OrderMiddleware(next httprouter.Handle) httprouter.Handle {
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == "" {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, tokenString)
 			return
 		}
 
 		token, err := helper.ParseJWTString(tokenString)
 		if err != nil || !token.Valid {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, err)
 			return
 		}
 
 		role, err := helper.GenerateRoleFromToken(token)
 		if err != nil {
-			log.Println(err)
+			exception.ErrorHandler(writer, request, err)
+			return
 		}
 
 		if role != "customer" {
-			http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+			exception.ErrorHandler(writer, request, false)
 			return
 		}
 
