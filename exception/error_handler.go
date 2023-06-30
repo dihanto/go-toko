@@ -1,6 +1,7 @@
 package exception
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,13 +16,23 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 		unauthorized(writer, request, err)
 		return
 	}
+
 	if validationError(writer, request, err) {
 		return
 	}
+
+	if err == sql.ErrNoRows {
+		badRequestError(writer, request, err)
+		return
+	}
+
 	internalServerError(writer, request, err)
 }
 
 func validationError(writer http.ResponseWriter, request *http.Request, errs interface{}) bool {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusBadRequest)
+
 	exception, ok := errs.(validator.ValidationErrors)
 	if ok {
 
@@ -43,23 +54,38 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 				messages = append(messages, fmt.Sprintf("validation error for %s: %s", fieldName, tag))
 			}
 		}
+
 		webResponse := response.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Bad Request",
 			Data:    messages,
 		}
-		writer.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(writer).Encode(webResponse)
+
 		return true
+
 	} else {
 		return false
 	}
 
 }
 
+func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) {
+	writer.Header().Set("Content-type", "application/json")
+
+	webResponse := response.WebResponse{
+		Code:    http.StatusBadRequest,
+		Message: "Bad Request",
+		Data:    fmt.Sprintf("%v", err),
+	}
+
+	json.NewEncoder(writer).Encode(webResponse)
+
+}
+
 func unauthorized(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
-	writer.WriteHeader(http.StatusInternalServerError)
+	writer.WriteHeader(http.StatusUnauthorized)
 
 	if err == "" {
 		webResponse := response.WebResponse{
@@ -68,7 +94,6 @@ func unauthorized(writer http.ResponseWriter, request *http.Request, err interfa
 			Data:    "JWT token cannot be empty",
 		}
 
-		writer.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(writer).Encode(webResponse)
 		return
 	}
@@ -77,10 +102,9 @@ func unauthorized(writer http.ResponseWriter, request *http.Request, err interfa
 		webResponse := response.WebResponse{
 			Code:    http.StatusUnauthorized,
 			Message: "Unauthorized",
-			Data:    "Login failed",
+			Data:    "Login failed/Password do not match",
 		}
 
-		writer.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(writer).Encode(webResponse)
 		return
 	}
@@ -91,7 +115,6 @@ func unauthorized(writer http.ResponseWriter, request *http.Request, err interfa
 		Data:    err,
 	}
 
-	writer.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(webResponse)
 
 }
@@ -106,7 +129,6 @@ func internalServerError(writer http.ResponseWriter, request *http.Request, err 
 		Data:    fmt.Sprintf("%v", err),
 	}
 
-	writer.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(webResponse)
 
 }
