@@ -30,6 +30,11 @@ func NewWalletUsecase(repository repository.WalletRepository, db *sql.DB, valida
 }
 
 func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request.AddWallet) (wallet response.AddWallet, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -52,6 +57,11 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 }
 
 func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid.UUID) (wallet response.GetWallet, err error) {
+	err = usecase.Validate.Var(idCustomer, "required")
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -69,6 +79,11 @@ func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid
 }
 
 func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request request.UpdateWallet) (wallet response.UpdateWallet, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return

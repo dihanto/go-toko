@@ -31,6 +31,11 @@ func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *
 }
 
 func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, request request.CustomerRegister) (response response.CustomerRegister, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
@@ -60,19 +65,24 @@ func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, reques
 
 }
 
-func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, email string, password string) (id uuid.UUID, result bool, err error) {
+func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, request request.CustomerLogin) (id uuid.UUID, result bool, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
 	}
 	defer helper.CommitOrRollback(tx)
 
-	id, passwordHashed, err := usecase.Repository.LoginCustomer(ctx, tx, email)
+	id, passwordHashed, err := usecase.Repository.LoginCustomer(ctx, tx, request.Email)
 	if err != nil {
 		return
 	}
 
-	result, err = helper.CheckPasswordHash(passwordHashed, password)
+	result, err = helper.CheckPasswordHash(passwordHashed, request.Password)
 
 	if !result {
 		return
@@ -82,6 +92,11 @@ func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, email str
 }
 
 func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request request.CustomerUpdate) (response response.CustomerUpdate, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
@@ -104,7 +119,12 @@ func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request 
 	return
 }
 
-func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, email string) (err error) {
+func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, request request.CustomerDelete) (err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
@@ -113,7 +133,7 @@ func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, email st
 
 	deletedTime := int32(time.Now().Unix())
 
-	err = usecase.Repository.DeleteCustomer(ctx, tx, email, deletedTime)
+	err = usecase.Repository.DeleteCustomer(ctx, tx, request.Email, deletedTime)
 	if err != nil {
 		return
 	}

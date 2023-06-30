@@ -29,6 +29,11 @@ func NewOrderUsecaseImpl(repository repository.OrderRepository, db *sql.DB, vali
 }
 
 func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.AddOrder) (order response.AddOrder, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -54,6 +59,11 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 }
 
 func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDetail response.FindOrder, err error) {
+	err = usecase.Validate.Var(id, "required")
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return

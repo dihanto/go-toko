@@ -7,6 +7,7 @@ import (
 	"github.com/dihanto/go-toko/config"
 	"github.com/dihanto/go-toko/controller"
 	"github.com/dihanto/go-toko/exception"
+	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/repository"
 	"github.com/dihanto/go-toko/usecase"
 	"github.com/go-playground/validator/v10"
@@ -14,9 +15,13 @@ import (
 )
 
 func main() {
-	db := config.NewDb()
+	db := config.InitDatabaseConnection()
+
 	validate := validator.New()
+	validate.RegisterValidation("email_unique", helper.ValdateEmailUnique)
+
 	var timeout int
+
 	router := httprouter.New()
 
 	{

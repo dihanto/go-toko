@@ -30,6 +30,11 @@ func NewProductUsecaseImpl(repository repository.ProductRepository, db *sql.DB, 
 }
 
 func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request request.AddProduct) (product response.AddProduct, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -77,6 +82,11 @@ func (usecase *ProductUsecaseImpl) GetProduct(ctx context.Context) (products []r
 }
 
 func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (product response.FindById, err error) {
+	err = usecase.Validate.Var(id, "required")
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -91,6 +101,11 @@ func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (produc
 	return
 }
 func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request request.UpdateProduct) (product response.UpdateProduct, err error) {
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -116,6 +131,11 @@ func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request re
 }
 
 func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (err error) {
+	err = usecase.Validate.Var(id, "required")
+	if err != nil {
+		return
+	}
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return

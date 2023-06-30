@@ -70,16 +70,14 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 		exception.ErrorHandler(writer, req, err)
 		return
 	}
-	email := customer.Email
-	password := customer.Password
 
-	id, result, err := controller.Usecase.LoginCustomer(req.Context(), email, password)
-	if !result {
-		exception.ErrorHandler(writer, req, result)
-		return
-	}
+	id, result, err := controller.Usecase.LoginCustomer(req.Context(), customer)
 	if err != nil {
 		exception.ErrorHandler(writer, req, err)
+		return
+	}
+	if !result {
+		exception.ErrorHandler(writer, req, result)
 		return
 	}
 
@@ -138,7 +136,7 @@ func (controller *CustomerControllerImpl) DeleteCustomer(writer http.ResponseWri
 		return
 	}
 
-	err = controller.Usecase.DeleteCustomer(req.Context(), customer.Email)
+	err = controller.Usecase.DeleteCustomer(req.Context(), customer)
 	if err != nil {
 		exception.ErrorHandler(writer, req, err)
 		return

@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func NewDb() *sql.DB {
+func InitDatabaseConnection() *sql.DB {
 	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres password=postgres dbname=mastermind sslmode=disable")
 	if err != nil {
 		exception.ErrorHandler(nil, nil, err)
