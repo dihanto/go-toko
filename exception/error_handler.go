@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/dihanto/go-toko/model/web/response"
 	"github.com/go-playground/validator/v10"
@@ -20,21 +21,35 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 	internalServerError(writer, request, err)
 }
 
-func validationError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
-	exception, ok := err.(validator.ValidationErrors)
+func validationError(writer http.ResponseWriter, request *http.Request, errs interface{}) bool {
+	exception, ok := errs.(validator.ValidationErrors)
 	if ok {
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusBadRequest)
 
+		var messages []string
+		for _, err := range exception {
+
+			fieldName := strings.ToLower(err.Field())
+			tag := err.ActualTag()
+			switch tag {
+			case "required":
+				messages = append(messages, fmt.Sprintf("%s is required", fieldName))
+			case "email":
+				messages = append(messages, fmt.Sprintf("%s is not a valid email", fieldName))
+			case "email_unique":
+				messages = append(messages, fmt.Sprintf("%s must be unique", fieldName))
+			case "min":
+				messages = append(messages, fmt.Sprintf("%s must be at least %s characters long", fieldName, err.Param()))
+			default:
+				messages = append(messages, fmt.Sprintf("validation error for %s: %s", fieldName, tag))
+			}
+		}
 		webResponse := response.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Bad Request",
-			Data:    exception.Error(),
+			Data:    messages,
 		}
-
 		writer.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(writer).Encode(webResponse)
-
 		return true
 	} else {
 		return false
