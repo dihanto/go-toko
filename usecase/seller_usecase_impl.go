@@ -40,7 +40,7 @@ func (usecase *SellerUsecaseImpl) RegisterSeller(ctx context.Context, request re
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	password, err := helper.HashPassword(request.Password)
 	if err != nil {
@@ -75,7 +75,7 @@ func (usecase *SellerUsecaseImpl) LoginSeller(ctx context.Context, request reque
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	id, password, err := usecase.Repository.LoginSeller(ctx, tx, request.Email)
 	if err != nil {
@@ -101,7 +101,7 @@ func (usecase *SellerUsecaseImpl) UpdateSeller(ctx context.Context, request requ
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	seller := entity.Seller{
 		Name:      request.Name,
@@ -129,7 +129,7 @@ func (usecase *SellerUsecaseImpl) DeleteSeller(ctx context.Context, request requ
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	deleteTime := int32(time.Now().Unix())
 

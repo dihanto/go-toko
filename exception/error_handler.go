@@ -121,7 +121,6 @@ func unauthorized(writer http.ResponseWriter, request *http.Request, err interfa
 
 func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
-	writer.WriteHeader(http.StatusInternalServerError)
 
 	webResponse := response.WebResponse{
 		Code:    http.StatusInternalServerError,

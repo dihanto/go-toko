@@ -6,18 +6,16 @@ import (
 	"github.com/dihanto/go-toko/exception"
 )
 
-func CommitOrRollback(tx *sql.Tx) {
-	err := recover()
-	if err != nil {
+func CommitOrRollback(tx *sql.Tx, err *error) {
+	if *err != nil {
 		errRolback := tx.Rollback()
 		if errRolback != nil {
-			exception.ErrorHandler(nil, nil, err)
+			exception.ErrorHandler(nil, nil, errRolback)
 		}
-		panic(err)
 	} else {
 		errCommit := tx.Commit()
 		if errCommit != nil {
-			exception.ErrorHandler(nil, nil, err)
+			exception.ErrorHandler(nil, nil, errCommit)
 		}
 	}
 }

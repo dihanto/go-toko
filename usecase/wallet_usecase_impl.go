@@ -39,7 +39,7 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,
@@ -66,7 +66,7 @@ func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	response, err := usecase.Repository.GetWallet(ctx, tx, idCustomer)
 	if err != nil {
@@ -88,7 +88,7 @@ func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request requ
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,

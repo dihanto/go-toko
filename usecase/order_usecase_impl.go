@@ -38,8 +38,7 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 	if err != nil {
 		return
 	}
-
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	requestRepo := entity.Order{
 		IdProduct:  request.IdProduct,
@@ -55,7 +54,6 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 	order = helper.ToResponseAddOrder(response)
 
 	return
-
 }
 
 func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDetail response.FindOrder, err error) {
@@ -68,7 +66,7 @@ func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDe
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	order, product, customerName, err := usecase.Repository.FindOrder(ctx, tx, id)
 	if err != nil {

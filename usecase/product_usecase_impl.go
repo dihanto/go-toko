@@ -39,7 +39,7 @@ func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request reque
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	requestRepo := entity.Product{
 		IdSeller:  request.IdSeller,
@@ -63,7 +63,7 @@ func (usecase *ProductUsecaseImpl) GetProduct(ctx context.Context) (products []r
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	responses, err := usecase.Repository.GetProduct(ctx, tx)
 	if err != nil {
@@ -91,7 +91,7 @@ func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (produc
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	response, err := usecase.Repository.FindById(ctx, tx, id)
 	if err != nil {
@@ -110,7 +110,7 @@ func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request re
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	requestRepo := entity.Product{
 		Id:        request.Id,
@@ -140,7 +140,7 @@ func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (e
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	deleteTime := int32(time.Now().Unix())
 	err = usecase.Repository.DeleteProduct(ctx, tx, deleteTime, id)

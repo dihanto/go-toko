@@ -40,7 +40,7 @@ func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, reques
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	password, err := helper.HashPassword(request.Password)
 	if err != nil {
@@ -75,7 +75,7 @@ func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, request r
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	id, passwordHashed, err := usecase.Repository.LoginCustomer(ctx, tx, request.Email)
 	if err != nil {
@@ -101,7 +101,7 @@ func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request 
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	customer := entity.Customer{
 		Name:      request.Name,
@@ -129,7 +129,7 @@ func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, request 
 	if err != nil {
 		return
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx, &err)
 
 	deletedTime := int32(time.Now().Unix())
 
