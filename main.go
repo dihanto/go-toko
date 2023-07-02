@@ -12,15 +12,20 @@ import (
 	"github.com/dihanto/go-toko/usecase"
 	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter"
+	"github.com/spf13/viper"
 )
 
 func main() {
+	config.InitLoadConfiguration()
+	serverHost := viper.GetString("server.host")
+	serverPort := viper.GetString("server.port")
+	timeout := viper.GetInt("usecase.timeout")
+
 	db := config.InitDatabaseConnection()
 
 	validate := validator.New()
 	validate.RegisterValidation("email_unique", helper.ValdateEmailUnique)
-
-	var timeout int
+	validate.RegisterValidation("wallet", helper.ValidateUserOnlyHaveOneWallet)
 
 	router := httprouter.New()
 
@@ -51,7 +56,7 @@ func main() {
 	}
 
 	server := http.Server{
-		Addr:    "localhost:2000",
+		Addr:    serverHost + ":" + serverPort,
 		Handler: router,
 	}
 

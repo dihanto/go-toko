@@ -4,38 +4,38 @@ import (
 	"log"
 	"time"
 
+	"github.com/dihanto/go-toko/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-)
-
-const (
-	JWTSecret     = "mastermind"
-	TokenDuration = time.Hour * 5
+	"github.com/spf13/viper"
 )
 
 func GenerateCustomerJWTToken(id uuid.UUID) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = id
-	claims["exp"] = time.Now().Add(TokenDuration).Unix()
+	tokenDuration := getJWTExpired()
+	claims["exp"] = time.Now().Add(tokenDuration).Unix()
 	claims["role"] = "customer"
-
-	return token.SignedString([]byte(JWTSecret))
+	secretKey := getJWTSecret()
+	return token.SignedString([]byte(secretKey))
 }
 
 func GenerateSellerJWTToken(id uuid.UUID) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = id
-	claims["exp"] = time.Now().Add(TokenDuration).Unix()
+	tokenDuration := getJWTExpired()
+	claims["exp"] = time.Now().Add(tokenDuration).Unix()
 	claims["role"] = "seller"
-
-	return token.SignedString([]byte(JWTSecret))
+	secretKey := getJWTSecret()
+	return token.SignedString([]byte(secretKey))
 }
 
 func ParseJWTString(tokenString string) (*jwt.Token, error) {
+	secretKey := getJWTSecret()
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(JWTSecret), nil
+		return []byte(secretKey), nil
 	})
 	if err != nil {
 		return nil, err
@@ -68,4 +68,16 @@ func GenerateRoleFromToken(token *jwt.Token) (role string, err error) {
 		return role, nil
 	}
 	return
+}
+
+func getJWTSecret() string {
+	config.InitLoadConfiguration()
+	secretKey := viper.GetString("jwt.secret_key")
+	return secretKey
+}
+
+func getJWTExpired() time.Duration {
+	config.InitLoadConfiguration()
+	duration := viper.GetDuration("jwt.duration")
+	return duration * time.Hour
 }
