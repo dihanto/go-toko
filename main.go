@@ -16,25 +16,21 @@ import (
 	"github.com/spf13/viper"
 )
 
-// @title           Swagger Example API
+// @title           Go-Toko API
 // @version         1.0
-// @description     This is a sample server celler server.
-// @termsOfService  http://swagger.io/terms/
+// @description     This is a simple API for marketplace.
 
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
+// @contact.name   Dihanto
+// @contact.email  dihanto2306@gmail.com
 
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
-// @BasePath  /api/v1
+// @host      localhost:2000
 
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+// @SecurityDefinitions JWTAuth
+// @TokenURL /login
+// @SecurityScheme bearerAuth
 
 func main() {
 

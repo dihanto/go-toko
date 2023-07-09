@@ -10,11 +10,9 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
         "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "name": "Dihanto",
+            "email": "dihanto2306@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -27,6 +25,11 @@ const docTemplate = `{
     "paths": {
         "/customer": {
             "put": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "description": "Update customer",
                 "tags": [
                     "Customer"
@@ -35,7 +38,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Update Customer",
-                        "name": "request",
+                        "name": "request_body",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -53,15 +56,20 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "description": "Delete customer",
                 "tags": [
-                    "customer"
+                    "Customer"
                 ],
                 "summary": "Delete customer",
                 "parameters": [
                     {
                         "description": "Delete customer",
-                        "name": "request",
+                        "name": "request_body",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -89,7 +97,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Login Customer",
-                        "name": "request",
+                        "name": "request_body",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -116,8 +124,8 @@ const docTemplate = `{
                 "summary": "Register customer",
                 "parameters": [
                     {
-                        "description": "Request Body",
-                        "name": "request",
+                        "description": "Register Customer",
+                        "name": "request_body",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -134,9 +142,266 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/order": {
+            "post": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Add order",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Add order",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Find order",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Find order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product": {
+            "get": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Get product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get product",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Add product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Add product",
+                "parameters": [
+                    {
+                        "description": "Add Product",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/product/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Find product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Find product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Update product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Update product",
+                "parameters": [
+                    {
+                        "description": "Update Product",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProduct"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Delete product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Delete product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "request.AddOrder": {
+            "type": "object",
+            "required": [
+                "id_customer",
+                "id_product",
+                "quantity"
+            ],
+            "properties": {
+                "id_customer": {
+                    "type": "string"
+                },
+                "id_product": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.AddProduct": {
+            "type": "object",
+            "required": [
+                "id_seller",
+                "name",
+                "price",
+                "quantity"
+            ],
+            "properties": {
+                "id_seller": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CustomerDelete": {
             "type": "object",
             "required": [
@@ -204,6 +469,29 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateProduct": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "price",
+                "quantity"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.WebResponse": {
             "type": "object",
             "properties": {
@@ -218,26 +506,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
-        }
-    },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Host:             "localhost:2000",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
-	Description:      "This is a sample server celler server.",
+	Title:            "Go-Toko API",
+	Description:      "This is a simple API for marketplace.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

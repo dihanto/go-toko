@@ -38,7 +38,7 @@ func (controller *CustomerControllerImpl) router(route *httprouter.Router) {
 // @Summary Register customer
 // @Description Register Customer
 // @Tags Customer
-// @Param request body request.CustomerRegister true "Request Body"
+// @Param request_body body request.CustomerRegister true "Register Customer"
 // @Success      201  {object}   response.WebResponse
 // @Router /customer/register [post]
 func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
@@ -75,7 +75,7 @@ func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseW
 // @Summary Login customer
 // @Description Login customer
 // @Tags Customer
-// @Param request body request.CustomerLogin true "Login Customer"
+// @Param request_body body request.CustomerLogin true "Login Customer"
 // @Success 200 {object} response.WebResponse
 // @Router /customer/login [post]
 func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
@@ -119,8 +119,9 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 // @Summary Update customer
 // @Description Update customer
 // @Tags Customer
-// @Param request body request.CustomerUpdate true "Update Customer"
+// @Param request_body body request.CustomerUpdate true "Update Customer"
 // @Success 200 {object} response.WebResponse
+// @Security JWTAuth
 // @Router /customer [put]
 func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerUpdate{}
@@ -153,9 +154,10 @@ func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWri
 // deleteCustomer
 // @Summary Delete customer
 // @Description Delete customer
-// @Tags customer
-// @Param request body request.CustomerDelete true "Delete customer"
+// @Tags Customer
+// @Param request_body body request.CustomerDelete true "Delete customer"
 // @Success 200 {object} response.WebResponse
+// @Security JWTAuth
 // @Router /customer [delete]
 func (controller *CustomerControllerImpl) DeleteCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerDelete{}

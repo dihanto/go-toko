@@ -35,6 +35,14 @@ func (controller *OrderControllerImpl) router(route *httprouter.Router) {
 	route.GET("/order/:id", middleware.OrderMiddleware(controller.FindOrder))
 }
 
+// addOrder
+// @Summary Add order
+// @Description Add order
+// @Tags Order
+// @Param request_body body request.AddOrder true "Request Body"
+// @Success 201 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /order [post]
 func (controller *OrderControllerImpl) AddOrder(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.AddOrder{}
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -72,6 +80,14 @@ func (controller *OrderControllerImpl) AddOrder(writer http.ResponseWriter, req 
 
 }
 
+// findOrder
+// @Summary Find order
+// @Description Find order
+// @Tags Order
+// @Param id path integer true "Order ID"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /order/{id} [post]
 func (controller *OrderControllerImpl) FindOrder(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)

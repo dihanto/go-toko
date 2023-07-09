@@ -1,5 +1,33 @@
-basePath: /api/v1
 definitions:
+  request.AddOrder:
+    properties:
+      id_customer:
+        type: string
+      id_product:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - id_customer
+    - id_product
+    - quantity
+    type: object
+  request.AddProduct:
+    properties:
+      id_seller:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - id_seller
+    - name
+    - price
+    - quantity
+    type: object
   request.CustomerDelete:
     properties:
       email:
@@ -47,6 +75,22 @@ definitions:
     - email
     - name
     type: object
+  request.UpdateProduct:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - id
+    - name
+    - price
+    - quantity
+    type: object
   response.WebResponse:
     properties:
       code:
@@ -57,21 +101,16 @@ definitions:
         example: success
         type: string
     type: object
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
-host: localhost:8080
+host: localhost:2000
 info:
   contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server celler server.
+    email: dihanto2306@gmail.com
+    name: Dihanto
+  description: This is a simple API for marketplace.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Go-Toko API
   version: "1.0"
 paths:
   /customer:
@@ -80,7 +119,7 @@ paths:
       parameters:
       - description: Delete customer
         in: body
-        name: request
+        name: request_body
         required: true
         schema:
           $ref: '#/definitions/request.CustomerDelete'
@@ -89,15 +128,17 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
       summary: Delete customer
       tags:
-      - customer
+      - Customer
     put:
       description: Update customer
       parameters:
       - description: Update Customer
         in: body
-        name: request
+        name: request_body
         required: true
         schema:
           $ref: '#/definitions/request.CustomerUpdate'
@@ -106,6 +147,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
       summary: Update customer
       tags:
       - Customer
@@ -115,7 +158,7 @@ paths:
       parameters:
       - description: Login Customer
         in: body
-        name: request
+        name: request_body
         required: true
         schema:
           $ref: '#/definitions/request.CustomerLogin'
@@ -131,9 +174,9 @@ paths:
     post:
       description: Register Customer
       parameters:
-      - description: Request Body
+      - description: Register Customer
         in: body
-        name: request
+        name: request_body
         required: true
         schema:
           $ref: '#/definitions/request.CustomerRegister'
@@ -145,7 +188,136 @@ paths:
       summary: Register customer
       tags:
       - Customer
-securityDefinitions:
-  BasicAuth:
-    type: basic
+  /order:
+    post:
+      description: Add order
+      parameters:
+      - description: Request Body
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddOrder'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Add order
+      tags:
+      - Order
+  /order/{id}:
+    post:
+      description: Find order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Find order
+      tags:
+      - Order
+  /product:
+    get:
+      description: Get product
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Get product
+      tags:
+      - Product
+    post:
+      description: Add product
+      parameters:
+      - description: Add Product
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddProduct'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Add product
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      description: Delete product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Delete product
+      tags:
+      - Product
+    get:
+      description: Find product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Find product
+      tags:
+      - Product
+    put:
+      description: Update product
+      parameters:
+      - description: Update Product
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProduct'
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Update product
+      tags:
+      - Product
 swagger: "2.0"

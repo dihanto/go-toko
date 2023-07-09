@@ -37,6 +37,14 @@ func (controller *ProductControllerImpl) router(route *httprouter.Router) {
 	route.DELETE("/product/:id", middleware.ProductMiddleware(controller.DeleteProduct))
 }
 
+// addProduct
+// @Summary Add product
+// @Description Add product
+// @Tags Product
+// @Param request_body body request.AddProduct true "Add Product"
+// @Success 201 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product [post]
 func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.AddProduct{}
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -72,6 +80,13 @@ func (controller *ProductControllerImpl) AddProduct(writer http.ResponseWriter, 
 	}
 }
 
+// getProduct
+// @Summary Get product
+// @Description Get product
+// @Tags Product
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product [get]
 func (controller *ProductControllerImpl) GetProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	productResponses, err := controller.Usecase.GetProduct(req.Context())
 	if err != nil {
@@ -93,6 +108,14 @@ func (controller *ProductControllerImpl) GetProduct(writer http.ResponseWriter, 
 	}
 }
 
+// findProduct
+// @Summary Find product
+// @Description Find product
+// @Tags Product
+// @Param id path integer true "Product ID"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product/{id} [get]
 func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)
@@ -120,6 +143,15 @@ func (controller *ProductControllerImpl) FindById(writer http.ResponseWriter, re
 	}
 }
 
+// updateProduct
+// @Summary Update product
+// @Description Update product
+// @Tags Product
+// @Param request_body body request.UpdateProduct true "Update Product"
+// @Param id path integer true "Product ID"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product/{id} [put]
 func (controller *ProductControllerImpl) UpdateProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.UpdateProduct{}
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -154,6 +186,14 @@ func (controller *ProductControllerImpl) UpdateProduct(writer http.ResponseWrite
 	}
 }
 
+// deleteProduct
+// @Summary Delete product
+// @Description Delete product
+// @Tags Product
+// @Param id path integer true "Product ID"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product/{id} [delete]
 func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	idString := param.ByName("id")
 	id, err := strconv.Atoi(idString)
