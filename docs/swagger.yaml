@@ -1,0 +1,151 @@
+basePath: /api/v1
+definitions:
+  request.CustomerDelete:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.CustomerLogin:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.CustomerRegister:
+    properties:
+      email:
+        example: dihanto@gmail.com
+        type: string
+      name:
+        example: dihanto
+        minLength: 5
+        type: string
+      password:
+        example: awesdkoire
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  request.CustomerUpdate:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 5
+        type: string
+    required:
+    - email
+    - name
+    type: object
+  response.WebResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      message:
+        example: success
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /customer:
+    delete:
+      description: Delete customer
+      parameters:
+      - description: Delete customer
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomerDelete'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Delete customer
+      tags:
+      - customer
+    put:
+      description: Update customer
+      parameters:
+      - description: Update Customer
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomerUpdate'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Update customer
+      tags:
+      - Customer
+  /customer/login:
+    post:
+      description: Login customer
+      parameters:
+      - description: Login Customer
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomerLogin'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Login customer
+      tags:
+      - Customer
+  /customer/register:
+    post:
+      description: Register Customer
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CustomerRegister'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Register customer
+      tags:
+      - Customer
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

@@ -50,6 +50,9 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 				messages = append(messages, fmt.Sprintf("%s must be unique", fieldName))
 			case "min":
 				messages = append(messages, fmt.Sprintf("%s must be at least %s characters long", fieldName, err.Param()))
+			case "wallet":
+				message := "customer cannot have more than one wallet"
+				messages = append(messages, message)
 			default:
 				messages = append(messages, fmt.Sprintf("validation error for %s: %s", fieldName, tag))
 			}

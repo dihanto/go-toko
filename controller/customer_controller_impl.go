@@ -34,7 +34,15 @@ func (controller *CustomerControllerImpl) router(route *httprouter.Router) {
 	route.DELETE("/customer", middleware.MindMiddleware(controller.DeleteCustomer))
 }
 
+// registerCustomer
+// @Summary Register customer
+// @Description Register Customer
+// @Tags Customer
+// @Param request body request.CustomerRegister true "Request Body"
+// @Success      201  {object}   response.WebResponse
+// @Router /customer/register [post]
 func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
+
 	customer := request.CustomerRegister{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
 	if err != nil {
@@ -63,6 +71,13 @@ func (controller *CustomerControllerImpl) RegisterCustomer(writer http.ResponseW
 
 }
 
+// loginCustomer
+// @Summary Login customer
+// @Description Login customer
+// @Tags Customer
+// @Param request body request.CustomerLogin true "Login Customer"
+// @Success 200 {object} response.WebResponse
+// @Router /customer/login [post]
 func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerLogin{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
@@ -100,6 +115,13 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 	}
 }
 
+// updateCustomer
+// @Summary Update customer
+// @Description Update customer
+// @Tags Customer
+// @Param request body request.CustomerUpdate true "Update Customer"
+// @Success 200 {object} response.WebResponse
+// @Router /customer [put]
 func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerUpdate{}
 	err := json.NewDecoder(req.Body).Decode(&customer)
@@ -128,6 +150,13 @@ func (controller *CustomerControllerImpl) UpdateCustomer(writer http.ResponseWri
 	}
 }
 
+// deleteCustomer
+// @Summary Delete customer
+// @Description Delete customer
+// @Tags customer
+// @Param request body request.CustomerDelete true "Delete customer"
+// @Success 200 {object} response.WebResponse
+// @Router /customer [delete]
 func (controller *CustomerControllerImpl) DeleteCustomer(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	customer := request.CustomerDelete{}
 	err := json.NewDecoder(req.Body).Decode(&customer)

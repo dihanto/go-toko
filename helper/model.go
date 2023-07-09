@@ -80,6 +80,7 @@ func ToResponseAddWallet(wallet entity.Wallet) response.AddWallet {
 		Id:         wallet.Id,
 		IdCustomer: wallet.IdCustomer,
 		Balance:    wallet.Balance,
+		CreatedAt:  time.Unix(int64(wallet.CreatedAt), 0),
 	}
 }
 
@@ -88,6 +89,8 @@ func ToResponseGetWallet(wallet entity.Wallet) response.GetWallet {
 		Id:         wallet.Id,
 		IdCustomer: wallet.IdCustomer,
 		Balance:    wallet.Balance,
+		CreatedAt:  time.Unix(int64(wallet.CreatedAt), 0),
+		UpdatedAt:  time.Unix(int64(wallet.UpdatedAt), 0),
 	}
 }
 
@@ -95,6 +98,8 @@ func ToResponseUpdateWallet(wallet entity.Wallet) response.UpdateWallet {
 	return response.UpdateWallet{
 		IdCustomer: wallet.IdCustomer,
 		Balance:    wallet.Balance,
+		CreatedAt:  time.Unix(int64(wallet.CreatedAt), 0),
+		UpdatedAt:  time.Unix(int64(wallet.UpdatedAt), 0),
 	}
 }
 
@@ -104,5 +109,6 @@ func ToResponseAddOrder(order entity.Order) response.AddOrder {
 		IdProduct:  order.IdProduct,
 		IdCustomer: order.IdCustomer,
 		Quantity:   order.Quantity,
+		OrderedAt:  time.Unix(int64(order.OrderedAt), 0),
 	}
 }
