@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/model/entity"
@@ -44,6 +45,7 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 		IdProduct:  request.IdProduct,
 		IdCustomer: request.IdCustomer,
 		Quantity:   request.Quantity,
+		OrderedAt:  int32(time.Now().Unix()),
 	}
 
 	response, err := usecase.Repository.AddOrder(ctx, tx, requestRepo)
@@ -85,6 +87,7 @@ func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDe
 		IdProduct:  order.IdProduct,
 		IdCustomer: order.IdCustomer,
 		Quantity:   order.Quantity,
+		OrderedAt:  time.Unix(int64(order.OrderedAt), 0),
 		TotalPrice: order.Quantity * product.Price,
 		Product:    productDetail,
 		Customer:   customerDetail,

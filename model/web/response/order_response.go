@@ -1,12 +1,17 @@
 package response
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type AddOrder struct {
 	Id         int       `json:"id"`
 	IdProduct  int       `json:"id_product"`
 	IdCustomer uuid.UUID `json:"id_customer"`
 	Quantity   int       `json:"quantity"`
+	OrderedAt  time.Time `json:"ordered_at"`
 }
 
 type FindOrder struct {
@@ -14,6 +19,7 @@ type FindOrder struct {
 	IdProduct  int           `json:"id_product"`
 	IdCustomer uuid.UUID     `json:"id_customer"`
 	Quantity   int           `json:"quantity"`
+	OrderedAt  time.Time     `json:"ordered_at"`
 	TotalPrice int           `json:"total_price"`
 	Product    ProductOrder  `json:"product"`
 	Customer   CustomerOrder `json:"customer"`

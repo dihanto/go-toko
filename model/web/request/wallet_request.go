@@ -3,7 +3,7 @@ package request
 import "github.com/google/uuid"
 
 type AddWallet struct {
-	IdCustomer uuid.UUID `json:"id_customer" validate:"required"`
+	IdCustomer uuid.UUID `json:"id_customer" validate:"required,wallet"`
 	Balance    int       `json:"balance" validate:"required"`
 }
 

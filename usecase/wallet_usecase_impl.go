@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/model/entity"
@@ -44,6 +45,7 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,
 		Balance:    request.Balance,
+		CreatedAt:  int32(time.Now().Unix()),
 	}
 
 	response, err := usecase.Repository.AddWallet(ctx, tx, requestRepo)
@@ -93,6 +95,7 @@ func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request requ
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,
 		Balance:    request.Balance,
+		UpdatedAt:  int32(time.Now().Unix()),
 	}
 
 	response, err := usecase.Repository.UpdateWallet(ctx, tx, requestRepo)

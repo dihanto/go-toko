@@ -16,8 +16,8 @@ func NewOrderRepositoryImpl() OrderRepository {
 }
 
 func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx, request entity.Order) (order entity.Order, err error) {
-	queryOrder := "INSERT INTO orders (id_product, id_customer, quantity) VALUES ($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, queryOrder, request.IdProduct, request.IdCustomer, request.Quantity).Scan(&request.Id)
+	queryOrder := "INSERT INTO orders (id_product, id_customer, quantity, ordered_at) VALUES ($1, $2, $3, $4) RETURNING id"
+	err = tx.QueryRowContext(ctx, queryOrder, request.IdProduct, request.IdCustomer, request.Quantity, request.OrderedAt).Scan(&request.Id)
 	if err != nil {
 		return
 	}
@@ -43,6 +43,7 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 		IdProduct:  request.IdProduct,
 		IdCustomer: request.IdCustomer,
 		Quantity:   request.Quantity,
+		OrderedAt:  request.OrderedAt,
 	}
 
 	return
@@ -50,8 +51,8 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *OrderRepositoryImpl) FindOrder(ctx context.Context, tx *sql.Tx, id int) (order entity.Order, product entity.Product, customerName string, err error) {
-	query := "SELECT o.id_product, o.id_customer, o.quantity, p.name, p.price, c.name FROM orders o JOIN products p ON o.id_product = p.id JOIN customers c ON o.id_customer = c.id WHERE o.id=$1"
-	err = tx.QueryRowContext(ctx, query, id).Scan(&order.IdProduct, &order.IdCustomer, &order.Quantity, &product.Name, &product.Price, &customerName)
+	query := "SELECT o.id_product, o.id_customer, o.quantity, o.ordered_at, p.name, p.price, c.name FROM orders o JOIN products p ON o.id_product = p.id JOIN customers c ON o.id_customer = c.id WHERE o.id=$1"
+	err = tx.QueryRowContext(ctx, query, id).Scan(&order.IdProduct, &order.IdCustomer, &order.Quantity, &order.OrderedAt, &product.Name, &product.Price, &customerName)
 	if err != nil {
 		return
 	}

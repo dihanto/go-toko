@@ -16,7 +16,10 @@ func NewProductRepositoryImpl() ProductRepository {
 
 func (repository *ProductRepositoryImpl) AddProduct(ctx context.Context, tx *sql.Tx, request entity.Product) (product entity.Product, err error) {
 	query := "INSERT INTO products (id_seller, name, price, quantity, created_at) VALUES($1, $2, $3, $4, $5) RETURNING id"
-	tx.QueryRowContext(ctx, query, request.IdSeller, request.Name, request.Price, request.Quantity, request.CreatedAt).Scan(&request.Id)
+	err = tx.QueryRowContext(ctx, query, request.IdSeller, request.Name, request.Price, request.Quantity, request.CreatedAt).Scan(&request.Id)
+	if err != nil {
+		return
+	}
 
 	product = entity.Product{
 		Id:        request.Id,
