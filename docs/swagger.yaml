@@ -28,6 +28,16 @@ definitions:
     - price
     - quantity
     type: object
+  request.AddWallet:
+    properties:
+      balance:
+        type: integer
+      id_customer:
+        type: string
+    required:
+    - balance
+    - id_customer
+    type: object
   request.CustomerDelete:
     properties:
       email:
@@ -75,6 +85,50 @@ definitions:
     - email
     - name
     type: object
+  request.SellerDelete:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.SellerLogin:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.SellerRegister:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 5
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  request.SellerUpdate:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 5
+        type: string
+    required:
+    - email
+    - name
+    type: object
   request.UpdateProduct:
     properties:
       id:
@@ -90,6 +144,16 @@ definitions:
     - name
     - price
     - quantity
+    type: object
+  request.UpdateWallet:
+    properties:
+      balance:
+        type: integer
+      id_customer:
+        type: string
+    required:
+    - balance
+    - id_customer
     type: object
   response.WebResponse:
     properties:
@@ -320,4 +384,130 @@ paths:
       summary: Update product
       tags:
       - Product
+  /seller:
+    delete:
+      description: Delete seller
+      parameters:
+      - description: Delete Seller
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SellerDelete'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Delete seller
+      tags:
+      - Seller
+    put:
+      description: Update seller
+      parameters:
+      - description: Update Seller
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SellerUpdate'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Update seller
+      tags:
+      - Seller
+  /seller/login:
+    post:
+      description: Register seller
+      parameters:
+      - description: Login Seller
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SellerLogin'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Register seller
+      tags:
+      - Seller
+  /seller/register:
+    post:
+      description: Register Seller
+      parameters:
+      - description: Register Seller
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SellerRegister'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      summary: Register seller
+      tags:
+      - Seller
+  /wallet:
+    get:
+      description: Get wallet
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Get wallet
+      tags:
+      - Wallet
+    post:
+      description: Add wallet
+      parameters:
+      - description: Add Wallet
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddWallet'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Add wallet
+      tags:
+      - Wallet
+    put:
+      description: Update wallet
+      parameters:
+      - description: Update Wallet
+        in: body
+        name: request_body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateWallet'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Update wallet
+      tags:
+      - Wallet
 swagger: "2.0"

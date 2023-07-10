@@ -349,6 +349,210 @@
                     }
                 }
             }
+        },
+        "/seller": {
+            "put": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Update seller",
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Update seller",
+                "parameters": [
+                    {
+                        "description": "Update Seller",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SellerUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Delete seller",
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Delete seller",
+                "parameters": [
+                    {
+                        "description": "Delete Seller",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SellerDelete"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/login": {
+            "post": {
+                "description": "Register seller",
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Register seller",
+                "parameters": [
+                    {
+                        "description": "Login Seller",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SellerLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/register": {
+            "post": {
+                "description": "Register Seller",
+                "tags": [
+                    "Seller"
+                ],
+                "summary": "Register seller",
+                "parameters": [
+                    {
+                        "description": "Register Seller",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SellerRegister"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallet": {
+            "get": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Get wallet",
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get wallet",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Update wallet",
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Update wallet",
+                "parameters": [
+                    {
+                        "description": "Update Wallet",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateWallet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Add wallet",
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Add wallet",
+                "parameters": [
+                    {
+                        "description": "Add Wallet",
+                        "name": "request_body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddWallet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -391,6 +595,21 @@
                 },
                 "quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.AddWallet": {
+            "type": "object",
+            "required": [
+                "balance",
+                "id_customer"
+            ],
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "id_customer": {
+                    "type": "string"
                 }
             }
         },
@@ -461,6 +680,70 @@
                 }
             }
         },
+        "request.SellerDelete": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SellerLogin": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "request.SellerRegister": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 5
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "request.SellerUpdate": {
+            "type": "object",
+            "required": [
+                "email",
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 5
+                }
+            }
+        },
         "request.UpdateProduct": {
             "type": "object",
             "required": [
@@ -481,6 +764,21 @@
                 },
                 "quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.UpdateWallet": {
+            "type": "object",
+            "required": [
+                "balance",
+                "id_customer"
+            ],
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "id_customer": {
+                    "type": "string"
                 }
             }
         },

@@ -35,6 +35,13 @@ func (controller *SellerControllerImpl) router(route *httprouter.Router) {
 	route.DELETE("/seller", middleware.MindMiddleware(controller.DeleteSeller))
 }
 
+// registerSeller
+// @Summary Register seller
+// @Description Register Seller
+// @Tags Seller
+// @Param request_body body request.SellerRegister true "Register Seller"
+// @Success      201  {object}   response.WebResponse
+// @Router /seller/register [post]
 func (controller *SellerControllerImpl) RegisterSeller(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	seller := request.SellerRegister{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
@@ -63,6 +70,13 @@ func (controller *SellerControllerImpl) RegisterSeller(writer http.ResponseWrite
 	}
 }
 
+// loginSeller
+// @Summary Register seller
+// @Description Register seller
+// @Tags Seller
+// @Param request_body body request.SellerLogin true "Login Seller"
+// @Success      200  {object}   response.WebResponse
+// @Router /seller/login [post]
 func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	seller := request.SellerLogin{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
@@ -102,6 +116,14 @@ func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, 
 
 }
 
+// updateSeller
+// @Summary Update seller
+// @Description Update seller
+// @Tags Seller
+// @Param request_body body request.SellerUpdate true "Update Seller"
+// @Success      200  {object}   response.WebResponse
+// @Security JWTAuth
+// @Router /seller [put]
 func (controller *SellerControllerImpl) UpdateSeller(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	seller := request.SellerUpdate{}
 	err := json.NewDecoder(req.Body).Decode(&seller)
@@ -130,6 +152,14 @@ func (controller *SellerControllerImpl) UpdateSeller(writer http.ResponseWriter,
 	}
 }
 
+// deleteSeller
+// @Summary Delete seller
+// @Description Delete seller
+// @Tags Seller
+// @Param request_body body request.SellerDelete true "Delete Seller"
+// @Success      200  {object}   response.WebResponse
+// @Security JWTAuth
+// @Router /seller [delete]
 func (controller *SellerControllerImpl) DeleteSeller(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	seller := request.SellerDelete{}
 	err := json.NewDecoder(req.Body).Decode(&seller)

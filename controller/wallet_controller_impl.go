@@ -30,10 +30,18 @@ func NewWalletController(usecase usecase.WalletUsecase, route *httprouter.Router
 
 func (controller *WalletControllerImpl) router(route *httprouter.Router) {
 	route.POST("/wallet", middleware.MindMiddleware(controller.AddWallet))
-	route.GET("/wallet/", middleware.MindMiddleware(controller.GetWallet))
-	route.PUT("/wallet/", middleware.MindMiddleware(controller.UpdateWallet))
+	route.GET("/wallet", middleware.MindMiddleware(controller.GetWallet))
+	route.PUT("/wallet", middleware.MindMiddleware(controller.UpdateWallet))
 }
 
+// addWallet
+// @Summary Add wallet
+// @Description Add wallet
+// @Tags Wallet
+// @Param request_body body request.AddWallet true "Add Wallet"
+// @Success 201 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /wallet [post]
 func (controller *WalletControllerImpl) AddWallet(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.AddWallet{}
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -69,6 +77,13 @@ func (controller *WalletControllerImpl) AddWallet(writer http.ResponseWriter, re
 	}
 }
 
+// getWallet
+// @Summary Get wallet
+// @Description Get wallet
+// @Tags Wallet
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /wallet [get]
 func (controller *WalletControllerImpl) GetWallet(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	authHeader := req.Header.Get("Authorization")
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -98,6 +113,14 @@ func (controller *WalletControllerImpl) GetWallet(writer http.ResponseWriter, re
 	}
 }
 
+// updateWallet
+// @Summary Update wallet
+// @Description Update wallet
+// @Tags Wallet
+// @Param request_body body request.UpdateWallet true "Update Wallet"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /wallet [put]
 func (controller *WalletControllerImpl) UpdateWallet(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.UpdateWallet{}
 	err := json.NewDecoder(req.Body).Decode(&request)
