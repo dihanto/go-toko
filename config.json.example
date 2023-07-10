@@ -1,0 +1,27 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": "2000"
+  },
+  "database": {
+    "name": "postgres",
+    "host": "localhost",
+    "user": "postgres",
+    "password": "postgres",
+    "database_name": "gotoko",
+    "port": 5432
+  },
+  "jwt": {
+    "secret_key": "mastermind",
+    "duration": 3
+  },
+  "usecase": {
+    "timeout": 3
+  },
+  "database_connection": {
+    "conn_max_idle_time": 300,
+    "conn_max_life_time": 600,
+    "max_idle_conn": 5,
+    "max_open_conn": 12
+  }
+}
