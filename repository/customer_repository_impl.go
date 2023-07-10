@@ -56,6 +56,8 @@ func (repository *CustomerRepositoryImpl) UpdateCustomer(ctx context.Context, tx
 		return
 	}
 
+	customer.Email = request.Email
+
 	return
 }
 
