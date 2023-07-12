@@ -31,16 +31,16 @@ func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *
 }
 
 func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, request request.CustomerRegister) (response response.CustomerRegister, err error) {
-	err = usecase.Validate.Struct(request)
-	if err != nil {
-		return
-	}
-
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
 	}
 	defer helper.CommitOrRollback(tx, &err)
+
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
 
 	password, err := helper.HashPassword(request.Password)
 	if err != nil {
