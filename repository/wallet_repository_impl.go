@@ -16,7 +16,7 @@ func NewWalletRepository() WalletRepository {
 }
 
 func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, tx *sql.Tx, request entity.Wallet) (wallet entity.Wallet, err error) {
-	query := "INSERT INTO wallet (id_customer, balance, created_at) VALUES($1, $2, $3) RETURNING id"
+	query := "INSERT INTO wallets (id_customer, balance, created_at) VALUES($1, $2, $3) RETURNING id"
 	err = tx.QueryRowContext(ctx, query, request.IdCustomer, request.Balance, request.CreatedAt).Scan(&request.Id)
 	if err != nil {
 		return
@@ -33,7 +33,7 @@ func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, tx *sql.T
 }
 
 func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.Tx, idCustomer uuid.UUID) (wallet entity.Wallet, err error) {
-	query := "SELECT id,balance,created_at,updated_at FROM wallet WHERE id_customer=$1"
+	query := "SELECT id,balance,created_at,updated_at FROM wallets WHERE id_customer=$1"
 	err = tx.QueryRowContext(ctx, query, idCustomer).Scan(&wallet.Id, &wallet.Balance, &wallet.CreatedAt, &wallet.UpdatedAt)
 	if err != nil {
 		return
@@ -44,7 +44,7 @@ func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.T
 }
 
 func (repository *WalletRepositoryImpl) UpdateWallet(ctx context.Context, tx *sql.Tx, request entity.Wallet) (wallet entity.Wallet, err error) {
-	query := "UPDATE wallet SET balance=balance+$1, updated_at=$2 WHERE id_customer=$3 RETURNING created_at, balance"
+	query := "UPDATE wallets SET balance=balance+$1, updated_at=$2 WHERE id_customer=$3 RETURNING created_at, balance"
 	err = tx.QueryRowContext(ctx, query, request.Balance, request.UpdatedAt, request.IdCustomer).Scan(&request.CreatedAt, &request.Balance)
 	if err != nil {
 		return

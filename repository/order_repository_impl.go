@@ -24,15 +24,16 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 
 	var price int
 	var resultQuantity string
-	queryProduct := "UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END WHERE id = $2 RETURNING CASE WHEN (quantity - $1) < 0 THEN 'Quantity cannot be less then 0' ELSE 'Success' END AS result, price"
-	tx.QueryRowContext(ctx, queryProduct, request.Quantity, request.IdProduct).Scan(&resultQuantity, &price)
+	queryProduct := `UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END WHERE id = $2
+	RETURNING CASE WHEN (quantity - $1) < 0 THEN 'Quantity cannot be less then 0' ELSE 'Success' END AS result, price`
+	err = tx.QueryRowContext(ctx, queryProduct, request.Quantity, request.IdProduct).Scan(&resultQuantity, &price)
 	if resultQuantity != "Success" {
 		return order, errors.New(resultQuantity)
 	}
 
 	var resultBalance string
 	totalPrice := price * request.Quantity
-	queryWallet := "Update wallet SET balance= CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END WHERE id_customer=$2 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
+	queryWallet := "Update wallets SET balance= CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END WHERE id_customer=$2 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
 	tx.QueryRowContext(ctx, queryWallet, totalPrice, request.IdCustomer).Scan(&resultBalance)
 	if resultBalance != "Success" {
 		return order, errors.New(resultBalance)

@@ -1,4 +1,4 @@
-CREATE TABLE wallet(
+CREATE TABLE wallets(
     id serial PRIMARY KEY,
     id_customer UUID,
     balance integer,
