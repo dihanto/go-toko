@@ -31,8 +31,8 @@ func NewOrderControllerImpl(usecase usecase.OrderUsecase, route *httprouter.Rout
 }
 
 func (controller *OrderControllerImpl) router(route *httprouter.Router) {
-	route.POST("/order", middleware.OrderMiddleware(controller.AddOrder))
-	route.GET("/order/:id", middleware.OrderMiddleware(controller.FindOrder))
+	route.POST("/orders", middleware.OrderMiddleware(controller.AddOrder))
+	route.GET("/orders/:id", middleware.OrderMiddleware(controller.FindOrder))
 }
 
 // addOrder

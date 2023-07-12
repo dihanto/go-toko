@@ -30,11 +30,11 @@ func NewProductControllerImpl(usecase usecase.ProductUsecase, route *httprouter.
 }
 
 func (controller *ProductControllerImpl) router(route *httprouter.Router) {
-	route.POST("/product", middleware.ProductMiddleware(controller.AddProduct))
-	route.GET("/product", middleware.MindMiddleware(controller.GetProduct))
-	route.GET("/product/:id", middleware.MindMiddleware(controller.FindById))
-	route.PUT("/product/:id", middleware.ProductMiddleware(controller.UpdateProduct))
-	route.DELETE("/product/:id", middleware.ProductMiddleware(controller.DeleteProduct))
+	route.POST("/products", middleware.ProductMiddleware(controller.AddProduct))
+	route.GET("/products", middleware.MindMiddleware(controller.GetProduct))
+	route.GET("/products/:id", middleware.MindMiddleware(controller.FindById))
+	route.PUT("/products/:id", middleware.ProductMiddleware(controller.UpdateProduct))
+	route.DELETE("/products/:id", middleware.ProductMiddleware(controller.DeleteProduct))
 }
 
 // addProduct

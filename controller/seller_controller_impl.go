@@ -29,10 +29,10 @@ func NewSellerControllerImpl(usecase usecase.SellerUsecase, route *httprouter.Ro
 }
 
 func (controller *SellerControllerImpl) router(route *httprouter.Router) {
-	route.POST("/seller/register", controller.RegisterSeller)
-	route.POST("/seller/login", controller.LoginSeller)
-	route.PUT("/seller", middleware.MindMiddleware(controller.UpdateSeller))
-	route.DELETE("/seller", middleware.MindMiddleware(controller.DeleteSeller))
+	route.POST("/sellers/register", controller.RegisterSeller)
+	route.POST("/sellers/login", controller.LoginSeller)
+	route.PUT("/sellers", middleware.MindMiddleware(controller.UpdateSeller))
+	route.DELETE("/sellers", middleware.MindMiddleware(controller.DeleteSeller))
 }
 
 // registerSeller
@@ -104,7 +104,7 @@ func (controller *SellerControllerImpl) LoginSeller(writer http.ResponseWriter, 
 	webRespone := response.WebResponse{
 		Code:    http.StatusOK,
 		Message: "Login success",
-		Data:    tokenString,
+		Data:    "Token : " + tokenString,
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

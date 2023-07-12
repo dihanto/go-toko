@@ -28,10 +28,10 @@ func NewCustomerControllerImpl(usecase usecase.CustomerUsecase, route *httproute
 }
 
 func (controller *CustomerControllerImpl) router(route *httprouter.Router) {
-	route.POST("/customer/register", controller.RegisterCustomer)
-	route.POST("/customer/login", controller.LoginCustomer)
-	route.PUT("/customer", middleware.MindMiddleware(controller.UpdateCustomer))
-	route.DELETE("/customer", middleware.MindMiddleware(controller.DeleteCustomer))
+	route.POST("/customers/register", controller.RegisterCustomer)
+	route.POST("/customers/login", controller.LoginCustomer)
+	route.PUT("/customers", middleware.MindMiddleware(controller.UpdateCustomer))
+	route.DELETE("/customers", middleware.MindMiddleware(controller.DeleteCustomer))
 }
 
 // registerCustomer
@@ -105,7 +105,7 @@ func (controller *CustomerControllerImpl) LoginCustomer(writer http.ResponseWrit
 	webResponse := response.WebResponse{
 		Code:    http.StatusOK,
 		Message: "Login Success",
-		Data:    tokenString,
+		Data:    "Token : " + tokenString,
 	}
 
 	writer.Header().Add("Content-Type", "application/json")
