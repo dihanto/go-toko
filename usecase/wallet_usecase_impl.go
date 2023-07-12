@@ -18,10 +18,10 @@ type WalletUsecaseImpl struct {
 	Repository repository.WalletRepository
 	Db         *sql.DB
 	Validate   *validator.Validate
-	Timeout    int
+	Timeout    time.Duration
 }
 
-func NewWalletUsecase(repository repository.WalletRepository, db *sql.DB, validate *validator.Validate, timeout int) WalletUsecase {
+func NewWalletUsecase(repository repository.WalletRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) WalletUsecase {
 	return &WalletUsecaseImpl{
 		Repository: repository,
 		Db:         db,
@@ -31,6 +31,9 @@ func NewWalletUsecase(repository repository.WalletRepository, db *sql.DB, valida
 }
 
 func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request.AddWallet) (wallet response.AddWallet, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -59,6 +62,9 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 }
 
 func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid.UUID) (wallet response.GetWallet, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Var(idCustomer, "required")
 	if err != nil {
 		return
@@ -81,6 +87,9 @@ func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid
 }
 
 func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request request.UpdateWallet) (wallet response.UpdateWallet, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return

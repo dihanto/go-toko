@@ -17,10 +17,10 @@ type ProductUsecaseImpl struct {
 	Repository repository.ProductRepository
 	Db         *sql.DB
 	Validate   *validator.Validate
-	Timeout    int
+	Timeout    time.Duration
 }
 
-func NewProductUsecaseImpl(repository repository.ProductRepository, db *sql.DB, validate *validator.Validate, timeout int) ProductUsecase {
+func NewProductUsecaseImpl(repository repository.ProductRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) ProductUsecase {
 	return &ProductUsecaseImpl{
 		Repository: repository,
 		Db:         db,
@@ -30,6 +30,9 @@ func NewProductUsecaseImpl(repository repository.ProductRepository, db *sql.DB, 
 }
 
 func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request request.AddProduct) (product response.AddProduct, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -59,6 +62,9 @@ func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request reque
 }
 
 func (usecase *ProductUsecaseImpl) GetProduct(ctx context.Context) (products []response.GetProduct, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -82,6 +88,9 @@ func (usecase *ProductUsecaseImpl) GetProduct(ctx context.Context) (products []r
 }
 
 func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (product response.FindById, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Var(id, "required")
 	if err != nil {
 		return
@@ -101,6 +110,9 @@ func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (produc
 	return
 }
 func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request request.UpdateProduct) (product response.UpdateProduct, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -131,6 +143,9 @@ func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request re
 }
 
 func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Var(id, "required")
 	if err != nil {
 		return

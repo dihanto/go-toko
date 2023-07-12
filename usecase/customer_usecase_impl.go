@@ -18,10 +18,10 @@ type CustomerUsecaseImpl struct {
 	Repository repository.CustomerRepository
 	Database   *sql.DB
 	Validate   *validator.Validate
-	Timeout    int
+	Timeout    time.Duration
 }
 
-func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *sql.DB, validate *validator.Validate, timeout int) CustomerUsecase {
+func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *sql.DB, validate *validator.Validate, timeout time.Duration) CustomerUsecase {
 	return &CustomerUsecaseImpl{
 		Repository: repository,
 		Database:   database,
@@ -31,6 +31,9 @@ func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *
 }
 
 func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, request request.CustomerRegister) (response response.CustomerRegister, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	tx, err := usecase.Database.Begin()
 	if err != nil {
 		return
@@ -66,6 +69,9 @@ func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, reques
 }
 
 func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, request request.CustomerLogin) (id uuid.UUID, result bool, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -92,6 +98,9 @@ func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, request r
 }
 
 func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request request.CustomerUpdate) (response response.CustomerUpdate, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -120,6 +129,9 @@ func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request 
 }
 
 func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, request request.CustomerDelete) (err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return

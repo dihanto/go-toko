@@ -37,7 +37,7 @@ func main() {
 	config.InitLoadConfiguration()
 	// serverHost := viper.GetString("server.host")
 	serverPort := viper.GetString("server.port")
-	timeout := viper.GetInt("usecase.timeout")
+	timeout := viper.GetDuration("usecase.timeout")
 
 	db := config.InitDatabaseConnection()
 

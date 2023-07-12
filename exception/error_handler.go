@@ -36,25 +36,32 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 	exception, ok := errs.(validator.ValidationErrors)
 	if ok {
 
-		var messages []string
-		for _, err := range exception {
+		var messages interface{}
+		message := make(map[string]string)
 
+		for _, err := range exception {
 			fieldName := strings.ToLower(err.Field())
 			tag := err.ActualTag()
+
 			switch tag {
 			case "required":
-				messages = append(messages, fmt.Sprintf("%s is required", fieldName))
+				message[fieldName] = fmt.Sprintf("%s is required", fieldName)
+				messages = message
 			case "email":
-				messages = append(messages, fmt.Sprintf("%s is not a valid email", fieldName))
+				message[fieldName] = fmt.Sprintf("%s in not a valid email", fieldName)
+				messages = message
 			case "email_unique":
-				messages = append(messages, fmt.Sprintf("%s must be unique", fieldName))
+				message[fieldName] = fmt.Sprintf("%s must be unique", fieldName)
+				messages = message
 			case "min":
-				messages = append(messages, fmt.Sprintf("%s must be at least %s characters long", fieldName, err.Param()))
+				message[fieldName] = fmt.Sprintf("%s must be at least %s characters long", fieldName, err.Param())
+				messages = message
 			case "wallet":
-				message := "customer cannot have more than one wallet"
-				messages = append(messages, message)
+				message[fieldName] = "customer cannot have more than one wallet"
+				messages = message
 			default:
-				messages = append(messages, fmt.Sprintf("validation error for %s: %s", fieldName, tag))
+				message[fieldName] = fmt.Sprintf("validation error for %s: %s", fieldName, tag)
+				messages = message
 			}
 		}
 

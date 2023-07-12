@@ -18,10 +18,10 @@ type SellerUsecaseImpl struct {
 	Repository repository.SellerRepository
 	Db         *sql.DB
 	Validate   *validator.Validate
-	Timeout    int
+	Timeout    time.Duration
 }
 
-func NewSellerUsecaseImpl(repository repository.SellerRepository, db *sql.DB, validate *validator.Validate, timeout int) SellerUsecase {
+func NewSellerUsecaseImpl(repository repository.SellerRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) SellerUsecase {
 	return &SellerUsecaseImpl{
 		Repository: repository,
 		Db:         db,
@@ -31,6 +31,9 @@ func NewSellerUsecaseImpl(repository repository.SellerRepository, db *sql.DB, va
 }
 
 func (usecase *SellerUsecaseImpl) RegisterSeller(ctx context.Context, request request.SellerRegister) (response response.SellerRegister, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	tx, err := usecase.Db.Begin()
 	if err != nil {
 		return
@@ -66,6 +69,9 @@ func (usecase *SellerUsecaseImpl) RegisterSeller(ctx context.Context, request re
 }
 
 func (usecase *SellerUsecaseImpl) LoginSeller(ctx context.Context, request request.SellerLogin) (id uuid.UUID, result bool, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -92,6 +98,9 @@ func (usecase *SellerUsecaseImpl) LoginSeller(ctx context.Context, request reque
 }
 
 func (usecase *SellerUsecaseImpl) UpdateSeller(ctx context.Context, request request.SellerUpdate) (response response.SellerUpdate, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -120,6 +129,9 @@ func (usecase *SellerUsecaseImpl) UpdateSeller(ctx context.Context, request requ
 }
 
 func (usecase *SellerUsecaseImpl) DeleteSeller(ctx context.Context, request request.SellerDelete) (err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return

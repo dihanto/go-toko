@@ -17,10 +17,10 @@ type OrderUsecaseImpl struct {
 	Repository repository.OrderRepository
 	Db         *sql.DB
 	Validate   *validator.Validate
-	Timeout    int
+	Timeout    time.Duration
 }
 
-func NewOrderUsecaseImpl(repository repository.OrderRepository, db *sql.DB, validate *validator.Validate, timeout int) OrderUsecase {
+func NewOrderUsecaseImpl(repository repository.OrderRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) OrderUsecase {
 	return &OrderUsecaseImpl{
 		Repository: repository,
 		Db:         db,
@@ -30,6 +30,9 @@ func NewOrderUsecaseImpl(repository repository.OrderRepository, db *sql.DB, vali
 }
 
 func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.AddOrder) (order response.AddOrder, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Struct(request)
 	if err != nil {
 		return
@@ -59,6 +62,9 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 }
 
 func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDetail response.FindOrder, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
 	err = usecase.Validate.Var(id, "required")
 	if err != nil {
 		return
