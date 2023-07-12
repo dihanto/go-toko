@@ -2,10 +2,10 @@ package config
 
 import (
 	"database/sql"
+	"log"
 	"strconv"
 	"time"
 
-	"github.com/dihanto/go-toko/exception"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
@@ -26,7 +26,7 @@ func InitDatabaseConnection() *sql.DB {
 
 	db, err := sql.Open(databaseName, "host="+databaseHost+" port="+databasePort+" user="+databaseUser+" password="+databasePassword+" dbname="+databaseDBName+" sslmode=disable")
 	if err != nil {
-		exception.ErrorHandler(nil, nil, err)
+		log.Println(err)
 	}
 	db.SetConnMaxIdleTime(connMaxIdleTime * time.Second)
 	db.SetConnMaxLifetime(connMaxLifeTime * time.Second)

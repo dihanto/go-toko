@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/dihanto/go-toko/config"
 	"github.com/dihanto/go-toko/controller"
 	_ "github.com/dihanto/go-toko/docs"
-	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/repository"
 	"github.com/dihanto/go-toko/usecase"
@@ -35,7 +35,7 @@ import (
 func main() {
 
 	config.InitLoadConfiguration()
-	serverHost := viper.GetString("server.host")
+	// serverHost := viper.GetString("server.host")
 	serverPort := viper.GetString("server.port")
 	timeout := viper.GetInt("usecase.timeout")
 
@@ -74,11 +74,11 @@ func main() {
 	}
 
 	server := http.Server{
-		Addr:    serverHost + ":" + serverPort,
+		Addr:    ":" + serverPort,
 		Handler: router,
 	}
 
 	fmt.Println("server running")
 	err := server.ListenAndServe()
-	exception.ErrorHandler(nil, nil, err)
+	log.Println(err)
 }

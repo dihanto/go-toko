@@ -2,9 +2,9 @@ package helper
 
 import (
 	"context"
+	"log"
 
 	"github.com/dihanto/go-toko/config"
-	"github.com/dihanto/go-toko/exception"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
@@ -21,7 +21,7 @@ func ValdateEmailUnique(field validator.FieldLevel) bool {
 	query := "SELECT email FROM " + user
 	rows, err := conn.QueryContext(ctx, query)
 	if err != nil {
-		exception.ErrorHandler(nil, nil, err)
+		log.Println(err)
 	}
 	defer rows.Close()
 
@@ -29,7 +29,7 @@ func ValdateEmailUnique(field validator.FieldLevel) bool {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			exception.ErrorHandler(nil, nil, err)
+			log.Println(err)
 		}
 		if value == email {
 			return false
@@ -48,10 +48,10 @@ func ValidateUserOnlyHaveOneWallet(field validator.FieldLevel) bool {
 
 	ctx := context.Background()
 
-	query := "SELECT id_customer FROM wallet"
+	query := "SELECT id_customer FROM wallets"
 	rows, err := conn.QueryContext(ctx, query)
 	if err != nil {
-		exception.ErrorHandler(nil, nil, err)
+		log.Println(err)
 	}
 	defer rows.Close()
 
@@ -59,7 +59,7 @@ func ValidateUserOnlyHaveOneWallet(field validator.FieldLevel) bool {
 		var id uuid.UUID
 		err = rows.Scan(&id)
 		if err != nil {
-			exception.ErrorHandler(nil, nil, err)
+			log.Println(err)
 		}
 		if id == value {
 			return false

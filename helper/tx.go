@@ -2,20 +2,19 @@ package helper
 
 import (
 	"database/sql"
-
-	"github.com/dihanto/go-toko/exception"
+	"log"
 )
 
 func CommitOrRollback(tx *sql.Tx, err *error) {
 	if *err != nil {
 		errRolback := tx.Rollback()
 		if errRolback != nil {
-			exception.ErrorHandler(nil, nil, errRolback)
+			log.Println(err)
 		}
 	} else {
 		errCommit := tx.Commit()
 		if errCommit != nil {
-			exception.ErrorHandler(nil, nil, errCommit)
+			log.Println(err)
 		}
 	}
 }
