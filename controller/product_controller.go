@@ -12,4 +12,5 @@ type ProductController interface {
 	FindById(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	UpdateProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	DeleteProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
+	FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 }

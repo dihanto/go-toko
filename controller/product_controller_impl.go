@@ -35,6 +35,7 @@ func (controller *ProductControllerImpl) router(route *httprouter.Router) {
 	route.GET("/products/:id", middleware.MindMiddleware(controller.FindById))
 	route.PUT("/products/:id", middleware.ProductMiddleware(controller.UpdateProduct))
 	route.DELETE("/products/:id", middleware.ProductMiddleware(controller.DeleteProduct))
+	route.GET("/products/", middleware.ProductMiddleware(controller.FindByName))
 }
 
 // addProduct
@@ -211,6 +212,42 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 	webResponse := response.WebResponse{
 		Code:    http.StatusOK,
 		Message: "Product success deleted",
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(webResponse)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+}
+
+func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
+	name := req.URL.Query().Get("name")
+	offset := req.URL.Query().Get("offset")
+	limit := req.URL.Query().Get("limit")
+
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+
+	products, err := controller.Usecase.FindByName(req.Context(), name, offsetInt, limitInt)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+
+	webResponse := response.WebResponse{
+		Code:    http.StatusOK,
+		Message: "Success find product by name",
+		Data:    products,
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

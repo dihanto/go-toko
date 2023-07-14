@@ -164,3 +164,36 @@ func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (e
 	}
 	return
 }
+
+func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, name string, offset int, limit int) (products []response.FindByName, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
+	err = usecase.Validate.Var(name, "required")
+	if err != nil {
+		return
+	}
+
+	tx, err := usecase.Db.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
+	responses, err := usecase.Repository.FindByName(ctx, tx, name, offset, limit)
+	if err != nil {
+		return
+	}
+
+	for _, product := range responses {
+		response := response.FindByName{
+			Id:       product.Id,
+			Name:     product.Name,
+			Price:    product.Price,
+			Quantity: product.Quantity,
+		}
+		products = append(products, response)
+	}
+
+	return products, nil
+}

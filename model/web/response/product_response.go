@@ -39,3 +39,10 @@ type UpdateProduct struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type FindByName struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Price    int    `json:"price"`
+	Quantity int    `json:"quantity"`
+}

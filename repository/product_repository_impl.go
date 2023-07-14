@@ -87,3 +87,23 @@ func (repository *ProductRepositoryImpl) DeleteProduct(ctx context.Context, tx *
 	}
 	return
 }
+
+func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql.Tx, name string, offset int, limit int) (products []entity.Product, err error) {
+	query := "SELECT id, name, price, quantity FROM products WHERE name LIKE $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
+	rows, err := tx.QueryContext(ctx, query, "%"+name+"%", limit, offset)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product entity.Product
+		err = rows.Scan(&product.Id, &product.Name, &product.Price, &product.Quantity)
+		if err != nil {
+			return
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
+}
