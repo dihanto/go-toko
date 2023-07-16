@@ -41,8 +41,20 @@ type UpdateProduct struct {
 }
 
 type FindByName struct {
+	Pagination Pagination          `json:"pagination"`
+	Product    []FindByNameProduct `json:"product"`
+}
+
+type FindByNameProduct struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Price    int    `json:"price"`
 	Quantity int    `json:"quantity"`
+}
+
+type Pagination struct {
+	Total        int `json:"total"`
+	PerPage      int `json:"per_page"`
+	CurrenntPage int `json:"current_page"`
+	LastPage     int `json:"last_page"`
 }

@@ -13,5 +13,5 @@ type ProductRepository interface {
 	FindById(ctx context.Context, tx *sql.Tx, id int) (product entity.Product, err error)
 	UpdateProduct(ctx context.Context, tx *sql.Tx, request entity.Product) (product entity.Product, err error)
 	DeleteProduct(ctx context.Context, tx *sql.Tx, deleteTime int32, id int) (err error)
-	FindByName(ctx context.Context, tx *sql.Tx, name string, offset int, limit int) (products []entity.Product, err error)
+	FindByName(ctx context.Context, tx *sql.Tx, search string, offset int, limit int) (products []entity.Product, count string, err error)
 }

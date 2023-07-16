@@ -88,9 +88,16 @@ func (repository *ProductRepositoryImpl) DeleteProduct(ctx context.Context, tx *
 	return
 }
 
-func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql.Tx, name string, offset int, limit int) (products []entity.Product, err error) {
-	query := "SELECT id, name, price, quantity FROM products WHERE name LIKE $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
-	rows, err := tx.QueryContext(ctx, query, "%"+name+"%", limit, offset)
+func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql.Tx, search string, offset int, limit int) (products []entity.Product, count string, err error) {
+
+	query := `SELECT id, name, price, quantity FROM products
+			  WHERE name LIKE $1
+			  OR CAST(price AS TEXT) LIKE $1
+			  OR CAST(quantity AS TEXT) LIKE $1
+			  ORDER BY created_at DESC
+			  LIMIT $2 OFFSET $3`
+
+	rows, err := tx.QueryContext(ctx, query, "%"+search+"%", limit, offset)
 	if err != nil {
 		return
 	}
@@ -105,5 +112,22 @@ func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql
 		products = append(products, product)
 	}
 
-	return products, nil
+	queryCount := `SELECT COUNT(*) FROM products
+					WHERE name LIKE $1
+					OR CAST(price AS TEXT) LIKE $1
+					OR CAST(quantity AS TEXT) LIKE $1`
+	rowsCount, err := tx.QueryContext(ctx, queryCount, "%"+search+"%")
+	if err != nil {
+		return
+	}
+	defer rowsCount.Close()
+
+	if rowsCount.Next() {
+		err = rowsCount.Scan(&count)
+		if err != nil {
+			return
+		}
+	}
+
+	return products, count, nil
 }

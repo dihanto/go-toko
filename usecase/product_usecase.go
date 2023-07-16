@@ -13,5 +13,5 @@ type ProductUsecase interface {
 	FindById(ctx context.Context, id int) (product response.FindById, err error)
 	UpdateProduct(ctx context.Context, request request.UpdateProduct) (product response.UpdateProduct, err error)
 	DeleteProduct(ctx context.Context, id int) (err error)
-	FindByName(ctx context.Context, name string, offset int, limit int) (products []response.FindByName, err error)
+	FindByName(ctx context.Context, search string, offset int, limit int) (productsWithPagination response.FindByName, err error)
 }

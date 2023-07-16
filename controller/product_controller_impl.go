@@ -223,7 +223,7 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 }
 
 func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
-	name := req.URL.Query().Get("name")
+	search := req.URL.Query().Get("search")
 	offset := req.URL.Query().Get("offset")
 	limit := req.URL.Query().Get("limit")
 
@@ -238,7 +238,7 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 		return
 	}
 
-	products, err := controller.Usecase.FindByName(req.Context(), name, offsetInt, limitInt)
+	productsWithPagination, err := controller.Usecase.FindByName(req.Context(), search, offsetInt, limitInt)
 	if err != nil {
 		exception.ErrorHandler(writer, req, err)
 		return
@@ -246,8 +246,8 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 
 	webResponse := response.WebResponse{
 		Code:    http.StatusOK,
-		Message: "Success find product by name",
-		Data:    products,
+		Message: "Success find product",
+		Data:    productsWithPagination,
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 
 	"github.com/dihanto/go-toko/helper"
@@ -165,11 +166,11 @@ func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (e
 	return
 }
 
-func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, name string, offset int, limit int) (products []response.FindByName, err error) {
-	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string, offset int, limit int) (productsWithPagination response.FindByName, err error) {
+	ctx, cancel := context.WithTimeout(ctx, 900*time.Second)
 	defer cancel()
 
-	err = usecase.Validate.Var(name, "required")
+	err = usecase.Validate.Var(search, "required")
 	if err != nil {
 		return
 	}
@@ -180,13 +181,14 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, name string, 
 	}
 	defer helper.CommitOrRollback(tx, &err)
 
-	responses, err := usecase.Repository.FindByName(ctx, tx, name, offset, limit)
+	responses, countString, err := usecase.Repository.FindByName(ctx, tx, search, offset, limit)
 	if err != nil {
 		return
 	}
 
+	var products []response.FindByNameProduct
 	for _, product := range responses {
-		response := response.FindByName{
+		response := response.FindByNameProduct{
 			Id:       product.Id,
 			Name:     product.Name,
 			Price:    product.Price,
@@ -195,5 +197,21 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, name string, 
 		products = append(products, response)
 	}
 
-	return products, nil
+	count, err := strconv.Atoi(countString)
+	if err != nil {
+		return
+	}
+	currentPage := ((count / limit) + 1) - ((count - offset + 1) / limit)
+	lastPage := (count / limit) + 1
+	pagination := response.Pagination{
+		Total:        count,
+		PerPage:      limit,
+		CurrenntPage: currentPage,
+		LastPage:     lastPage,
+	}
+	productsWithPagination = response.FindByName{
+		Product:    products,
+		Pagination: pagination,
+	}
+	return productsWithPagination, nil
 }
