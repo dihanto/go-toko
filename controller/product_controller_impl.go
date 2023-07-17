@@ -256,7 +256,7 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 
 	webResponse := response.WebResponse{
 		Code:    http.StatusOK,
-		Message: "Success find product",
+		Message: "Success search products",
 		Data:    productsWithPagination,
 	}
 

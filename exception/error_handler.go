@@ -26,7 +26,27 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 		return
 	}
 
+	if err != nil {
+		errorMessage := fmt.Sprintf("%v", err)
+		if strings.Contains(errorMessage, "token has invalid claims: token is expired") {
+			expiredTokenError(writer, request, err)
+			return
+		}
+	}
+
 	internalServerError(writer, request, err)
+}
+
+func expiredTokenError(writer http.ResponseWriter, request *http.Request, err interface{}) {
+	writer.Header().Set("Content-type", "application/json")
+	writer.WriteHeader(http.StatusUnauthorized)
+
+	errorResponse := response.ErrorResponse{
+		Code:    http.StatusUnauthorized,
+		Message: "Token is expired",
+	}
+
+	json.NewEncoder(writer).Encode(errorResponse)
 }
 
 func validationError(writer http.ResponseWriter, request *http.Request, errs interface{}) bool {
@@ -65,12 +85,11 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 			}
 		}
 
-		webResponse := response.WebResponse{
+		errorResponse := response.ErrorResponse{
 			Code:    http.StatusBadRequest,
-			Message: "Bad Request",
-			Data:    messages,
+			Message: messages,
 		}
-		json.NewEncoder(writer).Encode(webResponse)
+		json.NewEncoder(writer).Encode(errorResponse)
 
 		return true
 
@@ -83,13 +102,12 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
 
-	webResponse := response.WebResponse{
+	errorResponse := response.ErrorResponse{
 		Code:    http.StatusBadRequest,
-		Message: "Bad Request",
-		Data:    fmt.Sprintf("%v", err),
+		Message: fmt.Sprintf("%v", err),
 	}
 
-	json.NewEncoder(writer).Encode(webResponse)
+	json.NewEncoder(writer).Encode(errorResponse)
 
 }
 
@@ -98,46 +116,41 @@ func unauthorized(writer http.ResponseWriter, request *http.Request, err interfa
 	writer.WriteHeader(http.StatusUnauthorized)
 
 	if err == "" {
-		webResponse := response.WebResponse{
+		errorResponse := response.ErrorResponse{
 			Code:    http.StatusUnauthorized,
-			Message: "Unauthorized",
-			Data:    "JWT token cannot be empty",
+			Message: "JWT token cannot be empty",
 		}
 
-		json.NewEncoder(writer).Encode(webResponse)
+		json.NewEncoder(writer).Encode(errorResponse)
 		return
 	}
 
 	if err == false {
-		webResponse := response.WebResponse{
+		errorResponse := response.ErrorResponse{
 			Code:    http.StatusUnauthorized,
-			Message: "Unauthorized",
-			Data:    "Login failed/Password do not match",
+			Message: "Login failed/Password do not match",
 		}
 
-		json.NewEncoder(writer).Encode(webResponse)
+		json.NewEncoder(writer).Encode(errorResponse)
 		return
 	}
 
-	webResponse := response.WebResponse{
+	errorResponse := response.ErrorResponse{
 		Code:    http.StatusUnauthorized,
-		Message: "Unauthorized",
-		Data:    err,
+		Message: err,
 	}
-
-	json.NewEncoder(writer).Encode(webResponse)
+	json.NewEncoder(writer).Encode(errorResponse)
 
 }
 
 func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
 
-	webResponse := response.WebResponse{
+	errorResponse := response.ErrorResponse{
 		Code:    http.StatusInternalServerError,
-		Message: "Internal Server Error",
-		Data:    fmt.Sprintf("%v", err),
+		Message: fmt.Sprintf("%v", err),
 	}
 
-	json.NewEncoder(writer).Encode(webResponse)
+	json.NewEncoder(writer).Encode(errorResponse)
 
 }
