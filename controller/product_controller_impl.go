@@ -35,7 +35,7 @@ func (controller *ProductControllerImpl) router(route *httprouter.Router) {
 	route.GET("/products/:id", middleware.MindMiddleware(controller.FindById))
 	route.PUT("/products/:id", middleware.ProductMiddleware(controller.UpdateProduct))
 	route.DELETE("/products/:id", middleware.ProductMiddleware(controller.DeleteProduct))
-	route.GET("/products/", middleware.ProductMiddleware(controller.FindByName))
+	route.GET("/products/", middleware.MindMiddleware(controller.FindByName))
 }
 
 // addProduct
@@ -222,6 +222,16 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 	}
 }
 
+// searchProduct
+// @summary Search product
+// @description Search product
+// @tags Product
+// @Param search path string true "Search"
+// @Param offset  path integer true "Offset"
+// @Param limit path integer true "Limit"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product/ [get]
 func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	search := req.URL.Query().Get("search")
 	offset := req.URL.Query().Get("offset")

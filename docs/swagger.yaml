@@ -323,6 +323,35 @@ paths:
       summary: Add product
       tags:
       - Product
+  /product/:
+    get:
+      description: Search product
+      parameters:
+      - description: Search
+        in: path
+        name: search
+        required: true
+        type: string
+      - description: Offset
+        in: path
+        name: offset
+        required: true
+        type: integer
+      - description: Limit
+        in: path
+        name: limit
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Search product
+      tags:
+      - Product
   /product/{id}:
     delete:
       description: Delete product
