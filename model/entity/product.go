@@ -8,6 +8,7 @@ type Product struct {
 	Name      string
 	Price     int
 	Quantity  int
+	Wishlist  int
 	CreatedAt int32
 	UpdatedAt int32
 	DeletedAt int32

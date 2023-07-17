@@ -4,6 +4,7 @@ CREATE TABLE products (
     name VARCHAR(100),
     price integer,
     quantity integer,
+    wishlist integer not NULL DEFAULT 0,
     created_at integer,
     updated_at integer not NULL DEFAULT 0,
     deleted_at integer,

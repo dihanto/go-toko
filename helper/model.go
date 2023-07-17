@@ -112,3 +112,23 @@ func ToResponseAddOrder(order entity.Order) response.AddOrder {
 		OrderedAt:  time.Unix(int64(order.OrderedAt), 0),
 	}
 }
+
+func ToReponseAddProductToWishlist(product entity.Product) response.AddProductToWishlist {
+	return response.AddProductToWishlist{
+		Id:       product.Id,
+		Name:     product.Name,
+		Price:    product.Price,
+		Quantity: product.Quantity,
+		Wishlist: product.Wishlist,
+	}
+}
+
+func ToReponseDeleteProductFromWishlist(product entity.Product) response.DeleteProductFromWishlist {
+	return response.DeleteProductFromWishlist{
+		Id:       product.Id,
+		Name:     product.Name,
+		Price:    product.Price,
+		Quantity: product.Quantity,
+		Wishlist: product.Wishlist,
+	}
+}
