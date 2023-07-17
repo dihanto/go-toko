@@ -44,6 +44,7 @@ func main() {
 	validate := validator.New()
 	validate.RegisterValidation("email_unique", helper.ValdateEmailUnique)
 	validate.RegisterValidation("wallet", helper.ValidateUserOnlyHaveOneWallet)
+	validate.RegisterValidation("wishlist", helper.ValidateUserHaveOneWishlistInOneProduct)
 
 	router := httprouter.New()
 

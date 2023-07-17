@@ -67,3 +67,34 @@ func ValidateUserOnlyHaveOneWallet(field validator.FieldLevel) bool {
 	}
 	return true
 }
+
+func ValidateUserHaveOneWishlistInOneProduct(field validator.FieldLevel) bool {
+	value := field.Field().Interface().(uuid.UUID)
+	productId := field.Param()
+
+	conn := config.InitDatabaseConnection()
+	defer conn.Close()
+
+	ctx := context.Background()
+
+	query := "SELECT customer_id FROM wishlist_details WHERE product_id=$1"
+	rows, err := conn.QueryContext(ctx, query, productId)
+	if err != nil {
+		log.Println(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id uuid.UUID
+		err = rows.Scan(&id)
+		if err != nil {
+			log.Println(err)
+		}
+
+		if value == id {
+			return false
+		}
+	}
+
+	return true
+}
