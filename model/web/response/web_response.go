@@ -1,8 +1,7 @@
 package response
 
-// WebResponse example
 type WebResponse struct {
-	Code    int         `json:"code" example:"200"`
-	Message string      `json:"message" example:"success"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
