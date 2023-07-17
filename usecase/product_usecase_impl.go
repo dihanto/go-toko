@@ -201,6 +201,7 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string
 	if err != nil {
 		return
 	}
+
 	currentPage := ((count / limit) + 1) - ((count - offset + 1) / limit)
 	lastPage := (count / limit) + 1
 	pagination := response.Pagination{
@@ -209,9 +210,45 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string
 		CurrenntPage: currentPage,
 		LastPage:     lastPage,
 	}
+
 	productsWithPagination = response.FindByName{
 		Product:    products,
 		Pagination: pagination,
 	}
+
 	return productsWithPagination, nil
+}
+
+func (usecase *ProductUsecaseImpl) AddProductToWishlist(ctx context.Context, request request.AddProductToWishlist) (product response.AddProductToWishlist, err error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
+	err = usecase.Validate.Struct(request)
+	if err != nil {
+		return
+	}
+	productId := strconv.Itoa(request.ProductId)
+	err = usecase.Validate.Var(request.CustomerId, "wishlist="+productId)
+	if err != nil {
+		return
+	}
+
+	tx, err := usecase.Db.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
+	response, err := usecase.Repository.AddProductToWishlist(ctx, tx, request.ProductId, request.CustomerId)
+	if err != nil {
+		return
+	}
+
+	product = helper.ToReponseAddProductToWishlist(response)
+
+	return product, nil
+}
+
+func (usecase *ProductUsecaseImpl) DeleteProductFromWishlist(ctx context.Context, request request.DeleteProductFromWishlist) (product response.DeleteProductFromWishlist, err error) {
+	panic("not implemented") // TODO: Implement
 }

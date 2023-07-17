@@ -58,3 +58,19 @@ type Pagination struct {
 	CurrenntPage int `json:"current_page"`
 	LastPage     int `json:"last_page"`
 }
+
+type AddProductToWishlist struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Price    int    `json:"price"`
+	Quantity int    `json:"quantity"`
+	Wishlist int    `json:"wishlist"`
+}
+
+type DeleteProductFromWishlist struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Price    int    `json:"price"`
+	Quantity int    `json:"quantity"`
+	Wishlist int    `json:"wishlist"`
+}

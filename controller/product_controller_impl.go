@@ -36,6 +36,7 @@ func (controller *ProductControllerImpl) router(route *httprouter.Router) {
 	route.PUT("/products/:id", middleware.ProductMiddleware(controller.UpdateProduct))
 	route.DELETE("/products/:id", middleware.ProductMiddleware(controller.DeleteProduct))
 	route.GET("/products/", middleware.MindMiddleware(controller.FindByName))
+	route.POST("/products/:id/wishlist", middleware.OrderMiddleware(controller.AddProductToWishlist))
 }
 
 // addProduct
@@ -266,4 +267,48 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 		exception.ErrorHandler(writer, req, err)
 		return
 	}
+}
+
+func (controller *ProductControllerImpl) AddProductToWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
+	request := request.AddProductToWishlist{}
+
+	productIdString := param.ByName("id")
+	productId, err := strconv.Atoi(productIdString)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+	request.ProductId = productId
+
+	authHeader := req.Header.Get("Authorization")
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	request.CustomerId, err = helper.GenerateIdFromToken(tokenString)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+
+	productResponse, err := controller.Usecase.AddProductToWishlist(req.Context(), request)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+
+	webResponse := response.WebResponse{
+		Code:    http.StatusOK,
+		Message: "Success add product to wishlist",
+		Data:    productResponse,
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(webResponse)
+	if err != nil {
+		exception.ErrorHandler(writer, req, err)
+		return
+	}
+
+}
+
+func (controller *ProductControllerImpl) DeleteProductFromWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
+	panic("not implemented") // TODO: Implement
 }

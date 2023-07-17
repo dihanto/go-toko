@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/dihanto/go-toko/model/entity"
+	"github.com/google/uuid"
 )
 
 type ProductRepositoryImpl struct {
@@ -130,4 +131,31 @@ func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql
 	}
 
 	return products, count, nil
+}
+
+func (repository *ProductRepositoryImpl) AddProductToWishlist(ctx context.Context, tx *sql.Tx, productId int, customerId uuid.UUID) (product entity.Product, err error) {
+	query := "UPDATE products SET wishlist=wishlist+1 WHERE id=$1"
+	_, err = tx.ExecContext(ctx, query, productId)
+	if err != nil {
+		return
+	}
+
+	queryWishlist := "INSERT INTO wishlist_details (product_id, customer_id) VALUES ($1, $2)"
+	_, err = tx.ExecContext(ctx, queryWishlist, productId, customerId)
+	if err != nil {
+		return
+	}
+
+	queryProduct := "SELECT name, price, quantity, wishlist FROM products WHERE id=$1"
+	err = tx.QueryRowContext(ctx, queryProduct, productId).Scan(&product.Name, &product.Price, &product.Quantity, &product.Wishlist)
+	if err != nil {
+		return
+	}
+	product.Id = productId
+
+	return product, nil
+}
+
+func (repository *ProductRepositoryImpl) DeleteProductFromWishlist(ctx context.Context, tx *sql.Tx, productId int, customerId uuid.UUID) (product entity.Product, err error) {
+	panic("not implemented") // TODO: Implement
 }
