@@ -80,7 +80,7 @@ func validationError(writer http.ResponseWriter, request *http.Request, errs int
 				message[fieldName] = "customer cannot have more than one wallet"
 				messages = message
 			case "wishlist":
-				message[fieldName] = "you have already wishlisted this product"
+				message["wishlist"] = "you have already wishlisted this product"
 				messages = message
 			default:
 				message[fieldName] = fmt.Sprintf("validation error for %s: %s", fieldName, tag)
