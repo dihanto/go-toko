@@ -1,5 +1,5 @@
 CREATE TABLE order_details(
-    id  int,
+    id  SERIAL PRIMARY KEY,
     id_product INT,
     quantity INT,
     id_order INT,
