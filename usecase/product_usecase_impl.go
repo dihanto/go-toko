@@ -244,11 +244,24 @@ func (usecase *ProductUsecaseImpl) AddProductToWishlist(ctx context.Context, req
 		return
 	}
 
-	product = helper.ToReponseAddProductToWishlist(response)
+	return helper.ToReponseAddProductToWishlist(response), nil
 
-	return product, nil
 }
 
 func (usecase *ProductUsecaseImpl) DeleteProductFromWishlist(ctx context.Context, request request.DeleteProductFromWishlist) (product response.DeleteProductFromWishlist, err error) {
-	panic("not implemented") // TODO: Implement
+	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
+	defer cancel()
+
+	tx, err := usecase.Db.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
+	response, err := usecase.Repository.DeleteProductFromWishlist(ctx, tx, request.ProductId, request.CustomerId)
+	if err != nil {
+		return
+	}
+
+	return helper.ToReponseDeleteProductFromWishlist(response), nil
 }

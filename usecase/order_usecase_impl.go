@@ -44,19 +44,22 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 	}
 	defer helper.CommitOrRollback(tx, &err)
 
-	requestRepo := entity.Order{
-		IdProduct:  request.IdProduct,
+	requestOrder := entity.Order{
 		IdCustomer: request.IdCustomer,
-		Quantity:   request.Quantity,
 		OrderedAt:  int32(time.Now().Unix()),
 	}
 
-	response, err := usecase.Repository.AddOrder(ctx, tx, requestRepo)
+	requestOrderDetail := entity.OrderDetail{
+		IdProduct: request.IdProduct,
+		Quantity:  request.Quantity,
+	}
+
+	responseOrder, responseOrderDetail, err := usecase.Repository.AddOrder(ctx, tx, requestOrder, requestOrderDetail)
 	if err != nil {
 		return
 	}
 
-	order = helper.ToResponseAddOrder(response)
+	order = helper.ToResponseAddOrder(responseOrder, responseOrderDetail)
 
 	return
 }
@@ -76,7 +79,7 @@ func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDe
 	}
 	defer helper.CommitOrRollback(tx, &err)
 
-	order, product, customerName, err := usecase.Repository.FindOrder(ctx, tx, id)
+	responseOrder, responseOrderDetail, product, customerName, err := usecase.Repository.FindOrder(ctx, tx, id)
 	if err != nil {
 		return
 	}
@@ -89,12 +92,12 @@ func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDe
 		Name: customerName,
 	}
 	orderDetail = response.FindOrder{
-		Id:         order.Id,
-		IdProduct:  order.IdProduct,
-		IdCustomer: order.IdCustomer,
-		Quantity:   order.Quantity,
-		OrderedAt:  time.Unix(int64(order.OrderedAt), 0),
-		TotalPrice: order.Quantity * product.Price,
+		Id:         responseOrder.Id,
+		IdProduct:  responseOrderDetail.IdProduct,
+		IdCustomer: responseOrder.IdCustomer,
+		Quantity:   responseOrderDetail.Quantity,
+		OrderedAt:  time.Unix(int64(responseOrder.OrderedAt), 0),
+		TotalPrice: responseOrderDetail.Quantity * product.Price,
 		Product:    productDetail,
 		Customer:   customerDetail,
 	}

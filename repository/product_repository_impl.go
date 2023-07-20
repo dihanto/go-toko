@@ -157,5 +157,24 @@ func (repository *ProductRepositoryImpl) AddProductToWishlist(ctx context.Contex
 }
 
 func (repository *ProductRepositoryImpl) DeleteProductFromWishlist(ctx context.Context, tx *sql.Tx, productId int, customerId uuid.UUID) (product entity.Product, err error) {
-	panic("not implemented") // TODO: Implement
+	query := "UPDATE products SET wishlist=wishlist-1 WHERE id=$1"
+	_, err = tx.ExecContext(ctx, query, productId)
+	if err != nil {
+		return
+	}
+
+	queryWishlist := "DELETE FROM wishlist_details WHERE customer_id=$1"
+	_, err = tx.ExecContext(ctx, queryWishlist, customerId)
+	if err != nil {
+		return
+	}
+
+	queryProduct := "SELECT name, price, quantity, wishlist FROM products WHERE id=$1"
+	err = tx.QueryRowContext(ctx, queryProduct, productId).Scan(&product.Name, &product.Price, &product.Quantity, &product.Wishlist)
+	if err != nil {
+		return
+	}
+	product.Id = productId
+
+	return product, nil
 }

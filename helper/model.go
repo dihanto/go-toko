@@ -103,12 +103,12 @@ func ToResponseUpdateWallet(wallet entity.Wallet) response.UpdateWallet {
 	}
 }
 
-func ToResponseAddOrder(order entity.Order) response.AddOrder {
+func ToResponseAddOrder(order entity.Order, orderDetail entity.OrderDetail) response.AddOrder {
 	return response.AddOrder{
 		Id:         order.Id,
-		IdProduct:  order.IdProduct,
+		IdProduct:  orderDetail.IdProduct,
 		IdCustomer: order.IdCustomer,
-		Quantity:   order.Quantity,
+		Quantity:   orderDetail.Quantity,
 		OrderedAt:  time.Unix(int64(order.OrderedAt), 0),
 	}
 }

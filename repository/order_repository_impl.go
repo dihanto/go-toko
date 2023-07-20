@@ -15,9 +15,15 @@ func NewOrderRepositoryImpl() OrderRepository {
 	return &OrderRepositoryImpl{}
 }
 
-func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx, request entity.Order) (order entity.Order, err error) {
-	queryOrder := "INSERT INTO orders (id_product, id_customer, quantity, ordered_at) VALUES ($1, $2, $3, $4) RETURNING id"
-	err = tx.QueryRowContext(ctx, queryOrder, request.IdProduct, request.IdCustomer, request.Quantity, request.OrderedAt).Scan(&request.Id)
+func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx, orderRequest entity.Order, orderDetailRequest entity.OrderDetail) (order entity.Order, orderDetail entity.OrderDetail, err error) {
+	queryOrder := "INSERT INTO orders (id_customer, ordered_at) VALUES ($1, $2) RETURNING id"
+	err = tx.QueryRowContext(ctx, queryOrder, orderRequest.IdCustomer, orderRequest.OrderedAt).Scan(&orderRequest.Id)
+	if err != nil {
+		return
+	}
+
+	queryOrderDetail := "INSERT INTO order_details (id_product, quantity, id_order) VALUES ($1, $2, $3)"
+	_, err = tx.ExecContext(ctx, queryOrderDetail, orderDetailRequest.IdProduct, orderDetailRequest.Quantity, orderRequest.Id)
 	if err != nil {
 		return
 	}
@@ -26,39 +32,54 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 	var resultQuantity string
 	queryProduct := `UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END WHERE id = $2
 	RETURNING CASE WHEN (quantity - $1) < 0 THEN 'Quantity cannot be less then 0' ELSE 'Success' END AS result, price`
-	err = tx.QueryRowContext(ctx, queryProduct, request.Quantity, request.IdProduct).Scan(&resultQuantity, &price)
-	if resultQuantity != "Success" {
-		return order, errors.New(resultQuantity)
-	}
-
-	var resultBalance string
-	totalPrice := price * request.Quantity
-	queryWallet := "Update wallets SET balance= CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END WHERE id_customer=$2 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
-	tx.QueryRowContext(ctx, queryWallet, totalPrice, request.IdCustomer).Scan(&resultBalance)
-	if resultBalance != "Success" {
-		return order, errors.New(resultBalance)
-	}
-
-	order = entity.Order{
-		Id:         request.Id,
-		IdProduct:  request.IdProduct,
-		IdCustomer: request.IdCustomer,
-		Quantity:   request.Quantity,
-		OrderedAt:  request.OrderedAt,
-	}
-
-	return
-
-}
-
-func (repository *OrderRepositoryImpl) FindOrder(ctx context.Context, tx *sql.Tx, id int) (order entity.Order, product entity.Product, customerName string, err error) {
-	query := "SELECT o.id_product, o.id_customer, o.quantity, o.ordered_at, p.name, p.price, c.name FROM orders o JOIN products p ON o.id_product = p.id JOIN customers c ON o.id_customer = c.id WHERE o.id=$1"
-	err = tx.QueryRowContext(ctx, query, id).Scan(&order.IdProduct, &order.IdCustomer, &order.Quantity, &order.OrderedAt, &product.Name, &product.Price, &customerName)
+	err = tx.QueryRowContext(ctx, queryProduct, orderDetailRequest.Quantity, orderDetailRequest.IdProduct).Scan(&resultQuantity, &price)
 	if err != nil {
 		return
 	}
+	if resultQuantity != "Success" {
+		return order, orderDetail, errors.New(resultQuantity)
+	}
 
+	var resultBalance string
+	totalPrice := price * orderDetailRequest.Quantity
+	queryWallet := "Update wallets SET balance= CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END WHERE id_customer=$2 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
+	err = tx.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.IdCustomer).Scan(&resultBalance)
+	if err != nil {
+		return
+	}
+	if resultBalance != "Success" {
+		return order, orderDetail, errors.New(resultBalance)
+	}
+
+	order = entity.Order{
+		Id:         orderRequest.Id,
+		IdCustomer: orderRequest.IdCustomer,
+		OrderedAt:  orderRequest.OrderedAt,
+	}
+
+	orderDetail = entity.OrderDetail{
+		IdOrder:   orderRequest.Id,
+		IdProduct: orderDetailRequest.IdProduct,
+		Quantity:  orderDetailRequest.Quantity,
+	}
+
+	return order, orderDetail, nil
+
+}
+
+func (repository *OrderRepositoryImpl) FindOrder(ctx context.Context, tx *sql.Tx, id int) (order entity.Order, orderDetail entity.OrderDetail, product entity.Product, customerName string, err error) {
+	queryOrder := "SELECT o.id_customer,  o.ordered_at, c.name FROM orders o JOIN customers c ON o.id_customer = c.id WHERE o.id=$1"
+	err = tx.QueryRowContext(ctx, queryOrder, id).Scan(&order.IdCustomer, &order.OrderedAt, &customerName)
+	if err != nil {
+		return
+	}
 	order.Id = id
+
+	queryOrderDetail := "SELECT od.id_product, od.quantity, p.name, p.price FROM order_details od JOIN products p ON od.id_product = p.id WHERE od.id_order=$1"
+	err = tx.QueryRowContext(ctx, queryOrderDetail, id).Scan(&orderDetail.IdProduct, &orderDetail.Quantity, &product.Name, &product.Price)
+	if err != nil {
+		return
+	}
 
 	return
 }
