@@ -7,7 +7,7 @@
 
 ## Description
 
-go-toko is a simple e-commerce platform written in Go. It provides essential features for managing products, customers, and orders for online retailers.
+go-toko is a simple e-commerce API written in Go. It provides essential features for managing products, customers, and orders for online retailers.
 
 ## Project Structure
 
