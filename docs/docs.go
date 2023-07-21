@@ -403,6 +403,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/{id}/wishlist": {
+            "post": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Add product to wishlist",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Add product to wishlist",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "description": "Delete product from wishlist",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Delete product from wishlist",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/seller": {
             "put": {
                 "security": [
@@ -839,13 +899,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer",
-                    "example": 200
+                    "type": "integer"
                 },
                 "data": {},
                 "message": {
-                    "type": "string",
-                    "example": "success"
+                    "type": "string"
                 }
             }
         }

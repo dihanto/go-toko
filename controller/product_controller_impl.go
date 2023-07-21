@@ -277,7 +277,7 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 // @Param id path string true "Product Id"
 // @Success 200 {object} response.WebResponse
 // @Security JWTAuth
-// @Router /product/{id}/wishlist [get]
+// @Router /product/{id}/wishlist [post]
 func (controller *ProductControllerImpl) AddProductToWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.AddProductToWishlist{}
 
@@ -318,6 +318,14 @@ func (controller *ProductControllerImpl) AddProductToWishlist(writer http.Respon
 
 }
 
+// deleteProductFromWishlist
+// @summary Delete product from wishlist
+// @description Delete product from wishlist
+// @tags Product
+// @Param id path string true "Product Id"
+// @Success 200 {object} response.WebResponse
+// @Security JWTAuth
+// @Router /product/{id}/wishlist [delete]
 func (controller *ProductControllerImpl) DeleteProductFromWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	request := request.DeleteProductFromWishlist{}
 

@@ -158,11 +158,9 @@ definitions:
   response.WebResponse:
     properties:
       code:
-        example: 200
         type: integer
       data: {}
       message:
-        example: success
         type: string
     type: object
 host: localhost:2000
@@ -411,6 +409,43 @@ paths:
       security:
       - JWTAuth: []
       summary: Update product
+      tags:
+      - Product
+  /product/{id}/wishlist:
+    delete:
+      description: Delete product from wishlist
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Delete product from wishlist
+      tags:
+      - Product
+    post:
+      description: Add product to wishlist
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WebResponse'
+      security:
+      - JWTAuth: []
+      summary: Add product to wishlist
       tags:
       - Product
   /seller:

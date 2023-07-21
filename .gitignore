@@ -1,3 +1,5 @@
 *.config
 .vscode/
 config.json
+dockerfile
+docker-compose.yml

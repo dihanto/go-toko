@@ -30,9 +30,9 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 
 	var price int
 	var resultQuantity string
-	queryProduct := `UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END WHERE id = $2
+	queryProduct := `UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END, updated_at=$2 WHERE id = $3
 	RETURNING CASE WHEN (quantity - $1) < 0 THEN 'Quantity cannot be less then 0' ELSE 'Success' END AS result, price`
-	err = tx.QueryRowContext(ctx, queryProduct, orderDetailRequest.Quantity, orderDetailRequest.IdProduct).Scan(&resultQuantity, &price)
+	err = tx.QueryRowContext(ctx, queryProduct, orderDetailRequest.Quantity, orderRequest.OrderedAt, orderDetailRequest.IdProduct).Scan(&resultQuantity, &price)
 	if err != nil {
 		return
 	}
@@ -42,8 +42,8 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, tx *sql.Tx,
 
 	var resultBalance string
 	totalPrice := price * orderDetailRequest.Quantity
-	queryWallet := "Update wallets SET balance= CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END WHERE id_customer=$2 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
-	err = tx.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.IdCustomer).Scan(&resultBalance)
+	queryWallet := "Update wallets SET balance = CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END, updated_at=$2 WHERE id_customer=$3 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
+	err = tx.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.OrderedAt, orderRequest.IdCustomer).Scan(&resultBalance)
 	if err != nil {
 		return
 	}
