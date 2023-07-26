@@ -9,15 +9,18 @@ import (
 )
 
 type WalletRepositoryImpl struct {
+	Database *sql.DB
 }
 
-func NewWalletRepository() WalletRepository {
-	return &WalletRepositoryImpl{}
+func NewWalletRepository(database *sql.DB) WalletRepository {
+	return &WalletRepositoryImpl{
+		Database: database,
+	}
 }
 
-func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, tx *sql.Tx, request entity.Wallet) (wallet entity.Wallet, err error) {
+func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, request entity.Wallet) (wallet entity.Wallet, err error) {
 	query := "INSERT INTO wallets (id_customer, balance, created_at) VALUES($1, $2, $3) RETURNING id"
-	err = tx.QueryRowContext(ctx, query, request.IdCustomer, request.Balance, request.CreatedAt).Scan(&request.Id)
+	err = repository.Database.QueryRowContext(ctx, query, request.IdCustomer, request.Balance, request.CreatedAt).Scan(&request.Id)
 	if err != nil {
 		return
 	}
@@ -32,9 +35,9 @@ func (repository *WalletRepositoryImpl) AddWallet(ctx context.Context, tx *sql.T
 	return
 }
 
-func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.Tx, idCustomer uuid.UUID) (wallet entity.Wallet, err error) {
+func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, idCustomer uuid.UUID) (wallet entity.Wallet, err error) {
 	query := "SELECT id,balance,created_at,updated_at FROM wallets WHERE id_customer=$1"
-	err = tx.QueryRowContext(ctx, query, idCustomer).Scan(&wallet.Id, &wallet.Balance, &wallet.CreatedAt, &wallet.UpdatedAt)
+	err = repository.Database.QueryRowContext(ctx, query, idCustomer).Scan(&wallet.Id, &wallet.Balance, &wallet.CreatedAt, &wallet.UpdatedAt)
 	if err != nil {
 		return
 	}
@@ -43,9 +46,9 @@ func (repository *WalletRepositoryImpl) GetWallet(ctx context.Context, tx *sql.T
 	return
 }
 
-func (repository *WalletRepositoryImpl) UpdateWallet(ctx context.Context, tx *sql.Tx, request entity.Wallet) (wallet entity.Wallet, err error) {
+func (repository *WalletRepositoryImpl) UpdateWallet(ctx context.Context, request entity.Wallet) (wallet entity.Wallet, err error) {
 	query := "UPDATE wallets SET balance=balance+$1, updated_at=$2 WHERE id_customer=$3 RETURNING created_at, balance"
-	err = tx.QueryRowContext(ctx, query, request.Balance, request.UpdatedAt, request.IdCustomer).Scan(&request.CreatedAt, &request.Balance)
+	err = repository.Database.QueryRowContext(ctx, query, request.Balance, request.UpdatedAt, request.IdCustomer).Scan(&request.CreatedAt, &request.Balance)
 	if err != nil {
 		return
 	}

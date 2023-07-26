@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/dihanto/go-toko/helper"
@@ -15,15 +14,13 @@ import (
 
 type OrderUsecaseImpl struct {
 	Repository repository.OrderRepository
-	Db         *sql.DB
 	Validate   *validator.Validate
 	Timeout    time.Duration
 }
 
-func NewOrderUsecaseImpl(repository repository.OrderRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) OrderUsecase {
+func NewOrderUsecaseImpl(repository repository.OrderRepository, validate *validator.Validate, timeout time.Duration) OrderUsecase {
 	return &OrderUsecaseImpl{
 		Repository: repository,
-		Db:         db,
 		Validate:   validate,
 		Timeout:    timeout,
 	}
@@ -38,12 +35,6 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	requestOrder := entity.Order{
 		IdCustomer: request.IdCustomer,
 		OrderedAt:  int32(time.Now().Unix()),
@@ -54,7 +45,7 @@ func (usecase *OrderUsecaseImpl) AddOrder(ctx context.Context, request request.A
 		Quantity:  request.Quantity,
 	}
 
-	responseOrder, responseOrderDetail, err := usecase.Repository.AddOrder(ctx, tx, requestOrder, requestOrderDetail)
+	responseOrder, responseOrderDetail, err := usecase.Repository.AddOrder(ctx, requestOrder, requestOrderDetail)
 	if err != nil {
 		return
 	}
@@ -73,13 +64,7 @@ func (usecase *OrderUsecaseImpl) FindOrder(ctx context.Context, id int) (orderDe
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	responseOrder, responseOrderDetail, product, customerName, err := usecase.Repository.FindOrder(ctx, tx, id)
+	responseOrder, responseOrderDetail, product, customerName, err := usecase.Repository.FindOrder(ctx, id)
 	if err != nil {
 		return
 	}

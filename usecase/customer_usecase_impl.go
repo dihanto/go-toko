@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/dihanto/go-toko/helper"
@@ -16,15 +15,13 @@ import (
 
 type CustomerUsecaseImpl struct {
 	Repository repository.CustomerRepository
-	Database   *sql.DB
 	Validate   *validator.Validate
 	Timeout    time.Duration
 }
 
-func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *sql.DB, validate *validator.Validate, timeout time.Duration) CustomerUsecase {
+func NewCustomerUsecaseImpl(repository repository.CustomerRepository, validate *validator.Validate, timeout time.Duration) CustomerUsecase {
 	return &CustomerUsecaseImpl{
 		Repository: repository,
-		Database:   database,
 		Validate:   validate,
 		Timeout:    timeout,
 	}
@@ -33,12 +30,6 @@ func NewCustomerUsecaseImpl(repository repository.CustomerRepository, database *
 func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, request request.CustomerRegister) (response response.CustomerRegister, err error) {
 	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
 	defer cancel()
-
-	tx, err := usecase.Database.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
 
 	err = usecase.Validate.Struct(request)
 	if err != nil {
@@ -57,7 +48,7 @@ func (usecase *CustomerUsecaseImpl) RegisterCustomer(ctx context.Context, reques
 		Password:     password,
 		RegisteredAt: int32(time.Now().Unix()),
 	}
-	customerResponse, err := usecase.Repository.RegisterCustomer(ctx, tx, customer)
+	customerResponse, err := usecase.Repository.RegisterCustomer(ctx, customer)
 	if err != nil {
 		return
 	}
@@ -77,13 +68,7 @@ func (usecase *CustomerUsecaseImpl) LoginCustomer(ctx context.Context, request r
 		return
 	}
 
-	tx, err := usecase.Database.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	id, passwordHashed, err := usecase.Repository.LoginCustomer(ctx, tx, request.Email)
+	id, passwordHashed, err := usecase.Repository.LoginCustomer(ctx, request.Email)
 	if err != nil {
 		return
 	}
@@ -106,19 +91,13 @@ func (usecase *CustomerUsecaseImpl) UpdateCustomer(ctx context.Context, request 
 		return
 	}
 
-	tx, err := usecase.Database.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	customer := entity.Customer{
 		Name:      request.Name,
 		Email:     request.Email,
 		UpdatedAt: int32(time.Now().Unix()),
 	}
 
-	customerResponse, err := usecase.Repository.UpdateCustomer(ctx, tx, customer)
+	customerResponse, err := usecase.Repository.UpdateCustomer(ctx, customer)
 	if err != nil {
 		return
 	}
@@ -137,15 +116,9 @@ func (usecase *CustomerUsecaseImpl) DeleteCustomer(ctx context.Context, request 
 		return
 	}
 
-	tx, err := usecase.Database.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	deletedTime := int32(time.Now().Unix())
 
-	err = usecase.Repository.DeleteCustomer(ctx, tx, request.Email, deletedTime)
+	err = usecase.Repository.DeleteCustomer(ctx, request.Email, deletedTime)
 	if err != nil {
 		return
 	}

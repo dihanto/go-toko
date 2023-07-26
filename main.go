@@ -7,6 +7,7 @@ import (
 
 	"github.com/dihanto/go-toko/config"
 	"github.com/dihanto/go-toko/controller"
+	"github.com/dihanto/go-toko/database"
 	_ "github.com/dihanto/go-toko/docs"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/repository"
@@ -49,28 +50,28 @@ func main() {
 	router := httprouter.New()
 
 	{
-		repository := repository.NewCustomerRepositoryImpl()
-		usecase := usecase.NewCustomerUsecaseImpl(repository, db, validate, timeout)
+		repository := repository.NewCustomerRepositoryImpl(database.DB)
+		usecase := usecase.NewCustomerUsecaseImpl(repository, validate, timeout)
 		controller.NewCustomerControllerImpl(usecase, router)
 	}
 	{
-		repository := repository.NewSellerRepositoryImpl()
-		usecase := usecase.NewSellerUsecaseImpl(repository, db, validate, timeout)
+		repository := repository.NewSellerRepositoryImpl(db)
+		usecase := usecase.NewSellerUsecaseImpl(repository, validate, timeout)
 		controller.NewSellerControllerImpl(usecase, router)
 	}
 	{
-		repository := repository.NewProductRepositoryImpl()
-		usecase := usecase.NewProductUsecaseImpl(repository, db, validate, timeout)
+		repository := repository.NewProductRepositoryImpl(db)
+		usecase := usecase.NewProductUsecaseImpl(repository, validate, timeout)
 		controller.NewProductControllerImpl(usecase, router)
 	}
 	{
-		repository := repository.NewWalletRepository()
-		usecase := usecase.NewWalletUsecase(repository, db, validate, timeout)
+		repository := repository.NewWalletRepository(db)
+		usecase := usecase.NewWalletUsecase(repository, validate, timeout)
 		controller.NewWalletController(usecase, router)
 	}
 	{
-		repository := repository.NewOrderRepositoryImpl()
-		usecase := usecase.NewOrderUsecaseImpl(repository, db, validate, timeout)
+		repository := repository.NewOrderRepositoryImpl(db)
+		usecase := usecase.NewOrderUsecaseImpl(repository, validate, timeout)
 		controller.NewOrderControllerImpl(usecase, router)
 	}
 

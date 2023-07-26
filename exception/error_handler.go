@@ -39,7 +39,6 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 
 func expiredTokenError(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	writer.Header().Set("Content-type", "application/json")
-	writer.WriteHeader(http.StatusUnauthorized)
 
 	errorResponse := response.ErrorResponse{
 		Code:    http.StatusUnauthorized,

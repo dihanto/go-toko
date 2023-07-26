@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/dihanto/go-toko/helper"
@@ -16,15 +15,13 @@ import (
 
 type SellerUsecaseImpl struct {
 	Repository repository.SellerRepository
-	Db         *sql.DB
 	Validate   *validator.Validate
 	Timeout    time.Duration
 }
 
-func NewSellerUsecaseImpl(repository repository.SellerRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) SellerUsecase {
+func NewSellerUsecaseImpl(repository repository.SellerRepository, validate *validator.Validate, timeout time.Duration) SellerUsecase {
 	return &SellerUsecaseImpl{
 		Repository: repository,
-		Db:         db,
 		Validate:   validate,
 		Timeout:    timeout,
 	}
@@ -33,12 +30,6 @@ func NewSellerUsecaseImpl(repository repository.SellerRepository, db *sql.DB, va
 func (usecase *SellerUsecaseImpl) RegisterSeller(ctx context.Context, request request.SellerRegister) (response response.SellerRegister, err error) {
 	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
 	defer cancel()
-
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
 
 	err = usecase.Validate.Struct(request)
 	if err != nil {
@@ -58,7 +49,7 @@ func (usecase *SellerUsecaseImpl) RegisterSeller(ctx context.Context, request re
 		RegisteredAt: int32(time.Now().Unix()),
 	}
 
-	sellerResponse, err := usecase.Repository.RegisterSeller(ctx, tx, seller)
+	sellerResponse, err := usecase.Repository.RegisterSeller(ctx, seller)
 	if err != nil {
 		return
 	}
@@ -77,13 +68,7 @@ func (usecase *SellerUsecaseImpl) LoginSeller(ctx context.Context, request reque
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	id, password, err := usecase.Repository.LoginSeller(ctx, tx, request.Email)
+	id, password, err := usecase.Repository.LoginSeller(ctx, request.Email)
 	if err != nil {
 		return
 	}
@@ -106,19 +91,13 @@ func (usecase *SellerUsecaseImpl) UpdateSeller(ctx context.Context, request requ
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	seller := entity.Seller{
 		Name:      request.Name,
 		Email:     request.Email,
 		UpdatedAt: int32(time.Now().Unix()),
 	}
 
-	sellerResponse, err := usecase.Repository.UpdateSeller(ctx, tx, seller)
+	sellerResponse, err := usecase.Repository.UpdateSeller(ctx, seller)
 	if err != nil {
 		return
 	}
@@ -137,15 +116,9 @@ func (usecase *SellerUsecaseImpl) DeleteSeller(ctx context.Context, request requ
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	deleteTime := int32(time.Now().Unix())
 
-	err = usecase.Repository.DeleteSeller(ctx, tx, deleteTime, request.Email)
+	err = usecase.Repository.DeleteSeller(ctx, deleteTime, request.Email)
 	if err != nil {
 		return
 	}

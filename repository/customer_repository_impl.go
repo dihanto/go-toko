@@ -2,23 +2,25 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/dihanto/go-toko/database"
 	"github.com/dihanto/go-toko/model/entity"
 	"github.com/google/uuid"
 )
 
 type CustomerRepositoryImpl struct {
+	Database database.DB
 }
 
-func NewCustomerRepositoryImpl() CustomerRepository {
-	return &CustomerRepositoryImpl{}
+func NewCustomerRepositoryImpl(database database.DB) CustomerRepository {
+	return &CustomerRepositoryImpl{
+		Database: database,
+	}
 }
 
-func (repository *CustomerRepositoryImpl) RegisterCustomer(ctx context.Context, tx *sql.Tx, request entity.Customer) (customer entity.Customer, err error) {
-
+func (repository *CustomerRepositoryImpl) RegisterCustomer(ctx context.Context, request entity.Customer) (customer entity.Customer, err error) {
 	query := "INSERT INTO customers (id, email, name, password, registered_at) VALUES ($1, $2, $3, $4, $5);"
-	_, err = tx.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
+	_, err = repository.Database.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
 	if err != nil {
 		return
 	}
@@ -31,9 +33,9 @@ func (repository *CustomerRepositoryImpl) RegisterCustomer(ctx context.Context, 
 	return customer, nil
 }
 
-func (repository *CustomerRepositoryImpl) LoginCustomer(ctx context.Context, tx *sql.Tx, email string) (id uuid.UUID, passwordHashed string, err error) {
+func (repository *CustomerRepositoryImpl) LoginCustomer(ctx context.Context, email string) (id uuid.UUID, passwordHashed string, err error) {
 	query := "SELECT id, password FROM customers WHERE email = $1"
-	err = tx.QueryRowContext(ctx, query, email).Scan(&id, &passwordHashed)
+	err = repository.Database.QueryRowContext(ctx, query, email).Scan(&id, &passwordHashed)
 	if err != nil {
 		if err != nil {
 			return
@@ -43,15 +45,15 @@ func (repository *CustomerRepositoryImpl) LoginCustomer(ctx context.Context, tx 
 	return
 }
 
-func (repository *CustomerRepositoryImpl) UpdateCustomer(ctx context.Context, tx *sql.Tx, request entity.Customer) (customer entity.Customer, err error) {
+func (repository *CustomerRepositoryImpl) UpdateCustomer(ctx context.Context, request entity.Customer) (customer entity.Customer, err error) {
 
 	query := "UPDATE customers SET name=$1, updated_at=$2 WHERE email=$3"
-	_, err = tx.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
+	_, err = repository.Database.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
 	if err != nil {
 		return
 	}
 	queryResult := "SELECT name, registered_at, updated_at FROM customers WHERE email=$1"
-	err = tx.QueryRowContext(ctx, queryResult, request.Email).Scan(&customer.Name, &customer.RegisteredAt, &customer.UpdatedAt)
+	err = repository.Database.QueryRowContext(ctx, queryResult, request.Email).Scan(&customer.Name, &customer.RegisteredAt, &customer.UpdatedAt)
 	if err != nil {
 		return
 	}
@@ -61,10 +63,10 @@ func (repository *CustomerRepositoryImpl) UpdateCustomer(ctx context.Context, tx
 	return
 }
 
-func (repository *CustomerRepositoryImpl) DeleteCustomer(ctx context.Context, tx *sql.Tx, email string, deleteTime int32) (err error) {
+func (repository *CustomerRepositoryImpl) DeleteCustomer(ctx context.Context, email string, deleteTime int32) (err error) {
 
 	query := "UPDATE customers SET deleted_at=$1 WHERE email=$2"
-	_, err = tx.ExecContext(ctx, query, deleteTime, email)
+	_, err = repository.Database.ExecContext(ctx, query, deleteTime, email)
 	if err != nil {
 		return
 	}

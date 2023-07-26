@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/dihanto/go-toko/helper"
@@ -16,15 +15,13 @@ import (
 
 type WalletUsecaseImpl struct {
 	Repository repository.WalletRepository
-	Db         *sql.DB
 	Validate   *validator.Validate
 	Timeout    time.Duration
 }
 
-func NewWalletUsecase(repository repository.WalletRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) WalletUsecase {
+func NewWalletUsecase(repository repository.WalletRepository, validate *validator.Validate, timeout time.Duration) WalletUsecase {
 	return &WalletUsecaseImpl{
 		Repository: repository,
-		Db:         db,
 		Validate:   validate,
 		Timeout:    timeout,
 	}
@@ -39,19 +36,13 @@ func (usecase *WalletUsecaseImpl) AddWallet(ctx context.Context, request request
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,
 		Balance:    request.Balance,
 		CreatedAt:  int32(time.Now().Unix()),
 	}
 
-	response, err := usecase.Repository.AddWallet(ctx, tx, requestRepo)
+	response, err := usecase.Repository.AddWallet(ctx, requestRepo)
 	if err != nil {
 		return
 	}
@@ -70,13 +61,7 @@ func (usecase *WalletUsecaseImpl) GetWallet(ctx context.Context, idCustomer uuid
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	response, err := usecase.Repository.GetWallet(ctx, tx, idCustomer)
+	response, err := usecase.Repository.GetWallet(ctx, idCustomer)
 	if err != nil {
 		return
 	}
@@ -95,19 +80,13 @@ func (usecase *WalletUsecaseImpl) UpdateWallet(ctx context.Context, request requ
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	requestRepo := entity.Wallet{
 		IdCustomer: request.IdCustomer,
 		Balance:    request.Balance,
 		UpdatedAt:  int32(time.Now().Unix()),
 	}
 
-	response, err := usecase.Repository.UpdateWallet(ctx, tx, requestRepo)
+	response, err := usecase.Repository.UpdateWallet(ctx, requestRepo)
 	if err != nil {
 		return
 	}

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"strconv"
 	"time"
 
@@ -16,15 +15,13 @@ import (
 
 type ProductUsecaseImpl struct {
 	Repository repository.ProductRepository
-	Db         *sql.DB
 	Validate   *validator.Validate
 	Timeout    time.Duration
 }
 
-func NewProductUsecaseImpl(repository repository.ProductRepository, db *sql.DB, validate *validator.Validate, timeout time.Duration) ProductUsecase {
+func NewProductUsecaseImpl(repository repository.ProductRepository, validate *validator.Validate, timeout time.Duration) ProductUsecase {
 	return &ProductUsecaseImpl{
 		Repository: repository,
-		Db:         db,
 		Validate:   validate,
 		Timeout:    timeout,
 	}
@@ -39,12 +36,6 @@ func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request reque
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	requestRepo := entity.Product{
 		IdSeller:  request.IdSeller,
 		Name:      request.Name,
@@ -52,7 +43,7 @@ func (usecase *ProductUsecaseImpl) AddProduct(ctx context.Context, request reque
 		Quantity:  request.Quantity,
 		CreatedAt: int32(time.Now().Unix()),
 	}
-	response, err := usecase.Repository.AddProduct(ctx, tx, requestRepo)
+	response, err := usecase.Repository.AddProduct(ctx, requestRepo)
 	if err != nil {
 		return
 	}
@@ -66,13 +57,7 @@ func (usecase *ProductUsecaseImpl) GetProduct(ctx context.Context) (products []r
 	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
 	defer cancel()
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	responses, err := usecase.Repository.GetProduct(ctx, tx)
+	responses, err := usecase.Repository.GetProduct(ctx)
 	if err != nil {
 		return
 	}
@@ -97,13 +82,7 @@ func (usecase *ProductUsecaseImpl) FindById(ctx context.Context, id int) (produc
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	response, err := usecase.Repository.FindById(ctx, tx, id)
+	response, err := usecase.Repository.FindById(ctx, id)
 	if err != nil {
 		return
 	}
@@ -119,12 +98,6 @@ func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request re
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	requestRepo := entity.Product{
 		Id:        request.Id,
 		Name:      request.Name,
@@ -133,7 +106,7 @@ func (usecase *ProductUsecaseImpl) UpdateProduct(ctx context.Context, request re
 		UpdatedAt: int32(time.Now().Unix()),
 	}
 
-	response, err := usecase.Repository.UpdateProduct(ctx, tx, requestRepo)
+	response, err := usecase.Repository.UpdateProduct(ctx, requestRepo)
 	if err != nil {
 		return
 	}
@@ -152,14 +125,8 @@ func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (e
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
 	deleteTime := int32(time.Now().Unix())
-	err = usecase.Repository.DeleteProduct(ctx, tx, deleteTime, id)
+	err = usecase.Repository.DeleteProduct(ctx, deleteTime, id)
 	if err != nil {
 		return
 	}
@@ -175,13 +142,7 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	responses, countString, err := usecase.Repository.FindByName(ctx, tx, search, offset, limit)
+	responses, countString, err := usecase.Repository.FindByName(ctx, search, offset, limit)
 	if err != nil {
 		return
 	}
@@ -233,13 +194,7 @@ func (usecase *ProductUsecaseImpl) AddProductToWishlist(ctx context.Context, req
 		return
 	}
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	response, err := usecase.Repository.AddProductToWishlist(ctx, tx, request.ProductId, request.CustomerId)
+	response, err := usecase.Repository.AddProductToWishlist(ctx, request.ProductId, request.CustomerId)
 	if err != nil {
 		return
 	}
@@ -252,13 +207,7 @@ func (usecase *ProductUsecaseImpl) DeleteProductFromWishlist(ctx context.Context
 	ctx, cancel := context.WithTimeout(ctx, usecase.Timeout*time.Second)
 	defer cancel()
 
-	tx, err := usecase.Db.Begin()
-	if err != nil {
-		return
-	}
-	defer helper.CommitOrRollback(tx, &err)
-
-	response, err := usecase.Repository.DeleteProductFromWishlist(ctx, tx, request.ProductId, request.CustomerId)
+	response, err := usecase.Repository.DeleteProductFromWishlist(ctx, request.ProductId, request.CustomerId)
 	if err != nil {
 		return
 	}

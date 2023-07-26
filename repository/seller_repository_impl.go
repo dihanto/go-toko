@@ -9,15 +9,18 @@ import (
 )
 
 type SellerRepositoryImpl struct {
+	Database *sql.DB
 }
 
-func NewSellerRepositoryImpl() SellerRepository {
-	return &SellerRepositoryImpl{}
+func NewSellerRepositoryImpl(database *sql.DB) SellerRepository {
+	return &SellerRepositoryImpl{
+		Database: database,
+	}
 }
 
-func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, tx *sql.Tx, request entity.Seller) (seller entity.Seller, err error) {
+func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, request entity.Seller) (seller entity.Seller, err error) {
 	query := "INSERT INTO sellers (id, email, name, password, registered_at) VALUES ($1, $2, $3, $4, $5)"
-	_, err = tx.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
+	_, err = repository.Database.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
 	if err != nil {
 		return
 	}
@@ -30,9 +33,9 @@ func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, tx *
 	return
 }
 
-func (repository *SellerRepositoryImpl) LoginSeller(ctx context.Context, tx *sql.Tx, email string) (id uuid.UUID, password string, err error) {
+func (repository *SellerRepositoryImpl) LoginSeller(ctx context.Context, email string) (id uuid.UUID, password string, err error) {
 	query := "SELECT id, password FROM sellers WHERE email=$1"
-	err = tx.QueryRowContext(ctx, query, email).Scan(&id, &password)
+	err = repository.Database.QueryRowContext(ctx, query, email).Scan(&id, &password)
 	if err != nil {
 		return
 	}
@@ -40,14 +43,14 @@ func (repository *SellerRepositoryImpl) LoginSeller(ctx context.Context, tx *sql
 	return
 }
 
-func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, tx *sql.Tx, request entity.Seller) (seller entity.Seller, err error) {
+func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, request entity.Seller) (seller entity.Seller, err error) {
 	query := "UPDATE sellers SET name=$1, updated_at=$2 WHERE email=$3"
-	_, err = tx.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
+	_, err = repository.Database.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
 	if err != nil {
 		return
 	}
 	queryResult := "SELECT name, registered_at, updated_at FROM sellers WHERE email=$1"
-	rows, err := tx.QueryContext(ctx, queryResult, request.Email)
+	rows, err := repository.Database.QueryContext(ctx, queryResult, request.Email)
 	if err != nil {
 		return
 	}
@@ -64,9 +67,9 @@ func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, tx *sq
 	return
 }
 
-func (repository *SellerRepositoryImpl) DeleteSeller(ctx context.Context, tx *sql.Tx, deleteTime int32, email string) (err error) {
+func (repository *SellerRepositoryImpl) DeleteSeller(ctx context.Context, deleteTime int32, email string) (err error) {
 	query := "UPDATE sellers SET deleted_at=$1 WHERE email=$2"
-	_, err = tx.ExecContext(ctx, query, deleteTime, email)
+	_, err = repository.Database.ExecContext(ctx, query, deleteTime, email)
 	if err != nil {
 		return
 	}
