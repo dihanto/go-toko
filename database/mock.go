@@ -4,45 +4,45 @@ import (
 	"context"
 )
 
-type MockRow struct {
+type mockRow struct {
 	MockScan func(dest ...any) error
 }
 
-func (mock *MockRow) Scan(dest ...any) error {
+func (mock *mockRow) Scan(dest ...any) error {
 	return mock.MockScan(dest...)
 }
 
-func NewMockRow() *MockRow {
-	return &MockRow{MockScan: func(dest ...any) error {
+func NewMockRow() mockRow {
+	return mockRow{MockScan: func(dest ...any) error {
 		return nil
 	}}
 }
 
-type MockRows struct {
+type mockRows struct {
 	MockClose func()
 	MockErr   func() error
 	MockNext  func() bool
 	MockScan  func(dest ...any) error
 }
 
-func (mock *MockRows) Close() {
+func (mock *mockRows) Close() {
 	mock.MockClose()
 }
 
-func (mock *MockRows) Err() error {
+func (mock *mockRows) Err() error {
 	return mock.MockErr()
 }
 
-func (mock *MockRows) Next() bool {
+func (mock *mockRows) Next() bool {
 	return mock.MockNext()
 }
 
-func (mock *MockRows) Scan(dest ...any) error {
+func (mock *mockRows) Scan(dest ...any) error {
 	return mock.MockScan(dest...)
 }
 
-func NewMockRows() *MockRows {
-	return &MockRows{
+func NewMockRows() mockRows {
+	return mockRows{
 		MockClose: func() {},
 		MockErr:   func() error { return nil },
 		MockNext:  func() bool { return true },
@@ -50,27 +50,27 @@ func NewMockRows() *MockRows {
 	}
 }
 
-type MockTransaction struct {
+type mockTransaction struct {
 	MockRollback   func(ctx context.Context) error
 	MockBulkInsert func(ctx context.Context, tableName string, columns []string, rows [][]any) (int, error)
 	MockCommit     func(ctx context.Context) error
 }
 
-func (mock *MockTransaction) Rollback(ctx context.Context) error {
+func (mock *mockTransaction) Rollback(ctx context.Context) error {
 	return mock.MockRollback(ctx)
 }
 
-func (mock *MockTransaction) BulkInsert(ctx context.Context, tableName string, columns []string,
+func (mock *mockTransaction) BulkInsert(ctx context.Context, tableName string, columns []string,
 	rows [][]any) (int, error) {
 	return mock.MockBulkInsert(ctx, tableName, columns, rows)
 }
 
-func (mock *MockTransaction) Commit(ctx context.Context) error {
+func (mock *mockTransaction) Commit(ctx context.Context) error {
 	return mock.MockCommit(ctx)
 }
 
-func NewMockTransaction() *MockTransaction {
-	return &MockTransaction{
+func NewMockTransaction() mockTransaction {
+	return mockTransaction{
 		MockRollback: func(ctx context.Context) error {
 			return nil
 		},
@@ -83,49 +83,49 @@ func NewMockTransaction() *MockTransaction {
 	}
 }
 
-type MockDB struct {
-	MockRow         *MockRow
-	MockTransaction *MockTransaction
-	MockRows        *MockRows
+type mockDB struct {
+	MockRow         mockRow
+	MockTransaction mockTransaction
+	MockRows        mockRows
 	MockClose       func()
 	MockQueryRow    func(ctx context.Context, sql string, args ...any) Row
 	MockBegin       func(ctx context.Context) (Transaction, error)
 	MockQuery       func(ctx context.Context, sql string, args ...any) (Rows, error)
 }
 
-func (mock *MockDB) Close() {
+func (mock *mockDB) Close() {
 	mock.MockClose()
 }
 
-func (mock *MockDB) QueryRow(ctx context.Context, sql string, args ...any) Row {
+func (mock *mockDB) QueryRow(ctx context.Context, sql string, args ...any) Row {
 	return mock.MockQueryRow(ctx, sql, args...)
 }
 
-func (mock *MockDB) Begin(ctx context.Context) (Transaction, error) {
+func (mock *mockDB) Begin(ctx context.Context) (Transaction, error) {
 	return mock.MockBegin(ctx)
 }
 
-func (mock *MockDB) Query(ctx context.Context, sql string, args ...any) (Rows, error) {
+func (mock *mockDB) Query(ctx context.Context, sql string, args ...any) (Rows, error) {
 	return mock.MockQuery(ctx, sql, args...)
 }
 
-func NewMockDB() *MockDB {
+func NewMockDB() mockDB {
 	mockRow := NewMockRow()
 	mockTransaction := NewMockTransaction()
 	mockRows := NewMockRows()
-	return &MockDB{
+	return mockDB{
 		MockRow:         mockRow,
 		MockTransaction: mockTransaction,
 		MockRows:        mockRows,
 		MockClose:       func() {},
 		MockQueryRow: func(ctx context.Context, sql string, args ...any) Row {
-			return mockRow
+			return &mockRow
 		},
 		MockBegin: func(ctx context.Context) (Transaction, error) {
-			return mockTransaction, nil
+			return &mockTransaction, nil
 		},
 		MockQuery: func(ctx context.Context, sql string, args ...any) (Rows, error) {
-			return mockRows, nil
+			return &mockRows, nil
 		},
 	}
 }

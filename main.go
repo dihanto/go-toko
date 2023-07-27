@@ -40,6 +40,11 @@ func main() {
 	serverPort := viper.GetString("server.port")
 	timeout := viper.GetDuration("usecase.timeout")
 
+	conf := config.ConfigDB()
+	dbTest, err := database.NewDB(*conf)
+	if err != nil {
+		log.Println(err)
+	}
 	db := config.InitDatabaseConnection()
 
 	validate := validator.New()
@@ -50,7 +55,7 @@ func main() {
 	router := httprouter.New()
 
 	{
-		repository := repository.NewCustomerRepositoryImpl(database.DB)
+		repository := repository.NewCustomerRepositoryImpl(dbTest)
 		usecase := usecase.NewCustomerUsecaseImpl(repository, validate, timeout)
 		controller.NewCustomerControllerImpl(usecase, router)
 	}
@@ -81,6 +86,6 @@ func main() {
 	}
 
 	fmt.Println("server running")
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	log.Println(err)
 }

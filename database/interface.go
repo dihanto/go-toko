@@ -15,12 +15,12 @@ type Rows interface {
 
 type Transaction interface {
 	Rollback(context.Context) error
-	BulkInsert(ctx context.Context, tableName string, columns []string, rows [][]any) (int, error)
 	Commit(ctx context.Context) error
 }
 
 type DB interface {
 	Close()
+	Exec(ctx context.Context, query string, args ...any) (interface{}, error)
 	QueryRow(ctx context.Context, sql string, args ...any) Row
 	Begin(ctx context.Context) (Transaction, error)
 	Query(ctx context.Context, sql string, args ...any) (Rows, error)
