@@ -46,6 +46,7 @@ func main() {
 		log.Println(err)
 	}
 	db := config.InitDatabaseConnection()
+	defer db.Close()
 
 	validate := validator.New()
 	validate.RegisterValidation("email_unique", helper.ValdateEmailUnique)

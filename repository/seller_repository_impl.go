@@ -19,7 +19,7 @@ func NewSellerRepositoryImpl(database *sql.DB) SellerRepository {
 }
 
 func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, request entity.Seller) (seller entity.Seller, err error) {
-	query := "INSERT INTO sellers (id, email, name, password, registered_at) VALUES ($1, $2, $3, $4, $5)"
+	query := `INSERT INTO sellers (id, email, name, password, registered_at) VALUES ($1, $2, $3, $4, $5)`
 	_, err = repository.Database.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
 	if err != nil {
 		return

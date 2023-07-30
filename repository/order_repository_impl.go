@@ -45,7 +45,7 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, orderReques
 
 	var resultBalance string
 	totalPrice := price * orderDetailRequest.Quantity
-	queryWallet := "Update wallets SET balance = CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END, updated_at=$2 WHERE id_customer=$3 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
+	queryWallet := "UPDATE wallets SET balance = CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END, updated_at=$2 WHERE id_customer=$3 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
 	err = repository.Database.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.OrderedAt, orderRequest.IdCustomer).Scan(&resultBalance)
 	if err != nil {
 		return
