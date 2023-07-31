@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/model/entity"
 )
 
@@ -19,14 +20,20 @@ func NewOrderRepositoryImpl(database *sql.DB) OrderRepository {
 }
 
 func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, orderRequest entity.Order, orderDetailRequest entity.OrderDetail) (order entity.Order, orderDetail entity.OrderDetail, err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	queryOrder := "INSERT INTO orders (id_customer, ordered_at) VALUES ($1, $2) RETURNING id"
-	err = repository.Database.QueryRowContext(ctx, queryOrder, orderRequest.IdCustomer, orderRequest.OrderedAt).Scan(&orderRequest.Id)
+	err = tx.QueryRowContext(ctx, queryOrder, orderRequest.IdCustomer, orderRequest.OrderedAt).Scan(&orderRequest.Id)
 	if err != nil {
 		return
 	}
 
 	queryOrderDetail := "INSERT INTO order_details (id_product, quantity, id_order) VALUES ($1, $2, $3)"
-	_, err = repository.Database.ExecContext(ctx, queryOrderDetail, orderDetailRequest.IdProduct, orderDetailRequest.Quantity, orderRequest.Id)
+	_, err = tx.ExecContext(ctx, queryOrderDetail, orderDetailRequest.IdProduct, orderDetailRequest.Quantity, orderRequest.Id)
 	if err != nil {
 		return
 	}
@@ -35,7 +42,7 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, orderReques
 	var resultQuantity string
 	queryProduct := `UPDATE products SET quantity = CASE WHEN (quantity - $1) < 0 THEN quantity ELSE quantity - $1 END, updated_at=$2 WHERE id = $3
 	RETURNING CASE WHEN (quantity - $1) < 0 THEN 'Quantity cannot be less then 0' ELSE 'Success' END AS result, price`
-	err = repository.Database.QueryRowContext(ctx, queryProduct, orderDetailRequest.Quantity, orderRequest.OrderedAt, orderDetailRequest.IdProduct).Scan(&resultQuantity, &price)
+	err = tx.QueryRowContext(ctx, queryProduct, orderDetailRequest.Quantity, orderRequest.OrderedAt, orderDetailRequest.IdProduct).Scan(&resultQuantity, &price)
 	if err != nil {
 		return
 	}
@@ -46,7 +53,7 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, orderReques
 	var resultBalance string
 	totalPrice := price * orderDetailRequest.Quantity
 	queryWallet := "UPDATE wallets SET balance = CASE WHEN (balance-$1) < 0 THEN balance ELSE balance - $1 END, updated_at=$2 WHERE id_customer=$3 RETURNING CASE WHEN (balance - $1) < 0 THEN 'Balance cannot be less than 0' ELSE 'Success' END AS result"
-	err = repository.Database.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.OrderedAt, orderRequest.IdCustomer).Scan(&resultBalance)
+	err = tx.QueryRowContext(ctx, queryWallet, totalPrice, orderRequest.OrderedAt, orderRequest.IdCustomer).Scan(&resultBalance)
 	if err != nil {
 		return
 	}
@@ -71,15 +78,21 @@ func (repository *OrderRepositoryImpl) AddOrder(ctx context.Context, orderReques
 }
 
 func (repository *OrderRepositoryImpl) FindOrder(ctx context.Context, id int) (order entity.Order, orderDetail entity.OrderDetail, product entity.Product, customerName string, err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	queryOrder := "SELECT o.id_customer,  o.ordered_at, c.name FROM orders o JOIN customers c ON o.id_customer = c.id WHERE o.id=$1"
-	err = repository.Database.QueryRowContext(ctx, queryOrder, id).Scan(&order.IdCustomer, &order.OrderedAt, &customerName)
+	err = tx.QueryRowContext(ctx, queryOrder, id).Scan(&order.IdCustomer, &order.OrderedAt, &customerName)
 	if err != nil {
 		return
 	}
 	order.Id = id
 
 	queryOrderDetail := "SELECT od.id_product, od.quantity, p.name, p.price FROM order_details od JOIN products p ON od.id_product = p.id WHERE od.id_order=$1"
-	err = repository.Database.QueryRowContext(ctx, queryOrderDetail, id).Scan(&orderDetail.IdProduct, &orderDetail.Quantity, &product.Name, &product.Price)
+	err = tx.QueryRowContext(ctx, queryOrderDetail, id).Scan(&orderDetail.IdProduct, &orderDetail.Quantity, &product.Name, &product.Price)
 	if err != nil {
 		return
 	}

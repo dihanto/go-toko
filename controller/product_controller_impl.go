@@ -35,7 +35,7 @@ func (controller *ProductControllerImpl) router(route *httprouter.Router) {
 	route.GET("/products/:id", middleware.MindMiddleware(controller.FindById))
 	route.PUT("/products/:id", middleware.ProductMiddleware(controller.UpdateProduct))
 	route.DELETE("/products/:id", middleware.ProductMiddleware(controller.DeleteProduct))
-	route.GET("/products/", middleware.MindMiddleware(controller.FindByName))
+	route.GET("/products/", middleware.MindMiddleware(controller.Search))
 	route.POST("/products/:id/wishlist", middleware.OrderMiddleware(controller.AddProductToWishlist))
 	route.DELETE("/products/:id/wishlist", middleware.OrderMiddleware(controller.DeleteProductFromWishlist))
 }
@@ -234,7 +234,7 @@ func (controller *ProductControllerImpl) DeleteProduct(writer http.ResponseWrite
 // @Success 200 {object} response.WebResponse
 // @Security JWTAuth
 // @Router /product/ [get]
-func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
+func (controller *ProductControllerImpl) Search(writer http.ResponseWriter, req *http.Request, param httprouter.Params) {
 	search := req.URL.Query().Get("search")
 	offset := req.URL.Query().Get("offset")
 	limit := req.URL.Query().Get("limit")
@@ -250,7 +250,7 @@ func (controller *ProductControllerImpl) FindByName(writer http.ResponseWriter, 
 		return
 	}
 
-	productsWithPagination, err := controller.Usecase.FindByName(req.Context(), search, offsetInt, limitInt)
+	productsWithPagination, err := controller.Usecase.Search(req.Context(), search, offsetInt, limitInt)
 	if err != nil {
 		exception.ErrorHandler(writer, req, err)
 		return

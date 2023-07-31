@@ -2,7 +2,6 @@ package config
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -10,12 +9,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
-
-type Config struct {
-	DB string
-}
-
-var config *Config
 
 func InitDatabaseConnection() *sql.DB {
 	InitLoadConfiguration()
@@ -42,24 +35,4 @@ func InitDatabaseConnection() *sql.DB {
 
 	return db
 
-}
-
-func ConfigDB() *Config {
-	InitLoadConfiguration()
-	// databaseName := viper.GetString("database.name")
-	databaseHost := viper.GetString("database.host")
-	databasePortInt := viper.GetInt("database.port")
-	databasePort := strconv.Itoa(databasePortInt)
-	databaseUser := viper.GetString("database.user")
-	databasePassword := viper.GetString("database.password")
-	databaseDBName := viper.GetString("database.database_name")
-
-	DBURI := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		databaseHost, databasePort, databaseUser, databasePassword, databaseDBName)
-
-	config = &Config{
-		DB: DBURI,
-	}
-
-	return config
 }

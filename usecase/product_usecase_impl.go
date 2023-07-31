@@ -133,7 +133,7 @@ func (usecase *ProductUsecaseImpl) DeleteProduct(ctx context.Context, id int) (e
 	return
 }
 
-func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string, offset int, limit int) (productsWithPagination response.FindByName, err error) {
+func (usecase *ProductUsecaseImpl) Search(ctx context.Context, search string, offset int, limit int) (productsWithPagination response.FindByName, err error) {
 	ctx, cancel := context.WithTimeout(ctx, 900*time.Second)
 	defer cancel()
 
@@ -142,7 +142,7 @@ func (usecase *ProductUsecaseImpl) FindByName(ctx context.Context, search string
 		return
 	}
 
-	responses, countString, err := usecase.Repository.FindByName(ctx, search, offset, limit)
+	responses, countString, err := usecase.Repository.Search(ctx, search, offset, limit)
 	if err != nil {
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/dihanto/go-toko/helper"
 	"github.com/dihanto/go-toko/model/entity"
 	"github.com/google/uuid"
 )
@@ -19,8 +20,14 @@ func NewSellerRepositoryImpl(database *sql.DB) SellerRepository {
 }
 
 func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, request entity.Seller) (seller entity.Seller, err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	query := `INSERT INTO sellers (id, email, name, password, registered_at) VALUES ($1, $2, $3, $4, $5)`
-	_, err = repository.Database.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
+	_, err = tx.ExecContext(ctx, query, request.Id, request.Email, request.Name, request.Password, request.RegisteredAt)
 	if err != nil {
 		return
 	}
@@ -34,8 +41,14 @@ func (repository *SellerRepositoryImpl) RegisterSeller(ctx context.Context, requ
 }
 
 func (repository *SellerRepositoryImpl) LoginSeller(ctx context.Context, email string) (id uuid.UUID, password string, err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	query := "SELECT id, password FROM sellers WHERE email=$1"
-	err = repository.Database.QueryRowContext(ctx, query, email).Scan(&id, &password)
+	err = tx.QueryRowContext(ctx, query, email).Scan(&id, &password)
 	if err != nil {
 		return
 	}
@@ -44,13 +57,19 @@ func (repository *SellerRepositoryImpl) LoginSeller(ctx context.Context, email s
 }
 
 func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, request entity.Seller) (seller entity.Seller, err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	query := "UPDATE sellers SET name=$1, updated_at=$2 WHERE email=$3"
-	_, err = repository.Database.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
+	_, err = tx.ExecContext(ctx, query, request.Name, request.UpdatedAt, request.Email)
 	if err != nil {
 		return
 	}
 	queryResult := "SELECT name, registered_at, updated_at FROM sellers WHERE email=$1"
-	rows, err := repository.Database.QueryContext(ctx, queryResult, request.Email)
+	rows, err := tx.QueryContext(ctx, queryResult, request.Email)
 	if err != nil {
 		return
 	}
@@ -68,8 +87,14 @@ func (repository *SellerRepositoryImpl) UpdateSeller(ctx context.Context, reques
 }
 
 func (repository *SellerRepositoryImpl) DeleteSeller(ctx context.Context, deleteTime int32, email string) (err error) {
+	tx, err := repository.Database.Begin()
+	if err != nil {
+		return
+	}
+	defer helper.CommitOrRollback(tx, &err)
+
 	query := "UPDATE sellers SET deleted_at=$1 WHERE email=$2"
-	_, err = repository.Database.ExecContext(ctx, query, deleteTime, email)
+	_, err = tx.ExecContext(ctx, query, deleteTime, email)
 	if err != nil {
 		return
 	}

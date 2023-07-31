@@ -33,6 +33,7 @@ func TestAddOrder(t *testing.T) {
 
 	totalPricePayload := 4000
 
+	mock.ExpectBegin()
 	mock.ExpectQuery("INSERT INTO orders \\(id_customer, ordered_at\\) VALUES \\(\\$1, \\$2\\) RETURNING id").
 		WithArgs(orderPayload.IdCustomer, orderPayload.OrderedAt).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -52,5 +53,26 @@ func TestAddOrder(t *testing.T) {
 	repo := NewOrderRepositoryImpl(db)
 
 	_, _, err = repo.AddOrder(context.Background(), orderPayload, orderDetailPayload)
+	assert.NoError(t, err)
+}
+
+func TestFindOrder(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	id := 1
+	idCustomer := uuid.NewString()
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT o.id_customer,  o.ordered_at, c.name FROM orders o JOIN customers c ON o.id_customer = c.id WHERE o.id=$1")).
+		WithArgs(id).WillReturnRows(sqlmock.NewRows([]string{"id_customer", "quantity", "name"}).AddRow(idCustomer, 2, "jeruk"))
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT od.id_product, od.quantity, p.name, p.price FROM order_details od JOIN products p ON od.id_product = p.id WHERE od.id_order=$1")).
+		WithArgs(id).WillReturnRows(sqlmock.NewRows([]string{"id_product", "quantity", "name", "price"}).AddRow("1", 2, "jeruk", 1000))
+
+	repo := NewOrderRepositoryImpl(db)
+	_, _, _, _, err = repo.FindOrder(context.Background(), id)
 	assert.NoError(t, err)
 }

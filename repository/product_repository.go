@@ -13,7 +13,7 @@ type ProductRepository interface {
 	FindById(ctx context.Context, id int) (product entity.Product, err error)
 	UpdateProduct(ctx context.Context, request entity.Product) (product entity.Product, err error)
 	DeleteProduct(ctx context.Context, deleteTime int32, id int) (err error)
-	FindByName(ctx context.Context, search string, offset int, limit int) (products []entity.Product, count string, err error)
+	Search(ctx context.Context, search string, offset int, limit int) (products []entity.Product, count string, err error)
 	AddProductToWishlist(ctx context.Context, productId int, customerId uuid.UUID) (product entity.Product, err error)
 	DeleteProductFromWishlist(ctx context.Context, productId int, customerId uuid.UUID) (product entity.Product, err error)
 }

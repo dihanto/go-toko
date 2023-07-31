@@ -12,7 +12,7 @@ type ProductController interface {
 	FindById(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	UpdateProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	DeleteProduct(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
-	FindByName(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
+	Search(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	AddProductToWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 	DeleteProductFromWishlist(writer http.ResponseWriter, req *http.Request, param httprouter.Params)
 }

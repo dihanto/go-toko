@@ -9,12 +9,12 @@ func CommitOrRollback(tx *sql.Tx, err *error) {
 	if *err != nil {
 		errRolback := tx.Rollback()
 		if errRolback != nil {
-			log.Println(err)
+			log.Println(errRolback)
 		}
 	} else {
 		errCommit := tx.Commit()
 		if errCommit != nil {
-			log.Println(err)
+			log.Println(errCommit)
 		}
 	}
 }
