@@ -7,14 +7,11 @@ import (
 	"github.com/dihanto/go-toko/exception"
 	"github.com/dihanto/go-toko/helper"
 	"github.com/julienschmidt/httprouter"
-	"github.com/sirupsen/logrus"
 )
 
-func MindMiddleware(next httprouter.Handle) httprouter.Handle {
+func CommonMiddleware(next httprouter.Handle) httprouter.Handle {
 	return func(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
-		logger := logrus.New()
-		logger.Infoln(request.Method)
-		logger.Infoln(request.RequestURI)
+		helper.Logger(request)
 
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -30,11 +27,13 @@ func MindMiddleware(next httprouter.Handle) httprouter.Handle {
 		}
 
 		next(writer, request, param)
+
 	}
 }
 
 func ProductMiddleware(next httprouter.Handle) httprouter.Handle {
 	return func(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
+		helper.Logger(request)
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == "" {
@@ -67,6 +66,7 @@ func ProductMiddleware(next httprouter.Handle) httprouter.Handle {
 
 func OrderMiddleware(next httprouter.Handle) httprouter.Handle {
 	return func(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
+		helper.Logger(request)
 		authHeader := request.Header.Get("Authorization")
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == "" {

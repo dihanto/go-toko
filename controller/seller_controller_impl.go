@@ -31,8 +31,8 @@ func NewSellerControllerImpl(usecase usecase.SellerUsecase, route *httprouter.Ro
 func (controller *SellerControllerImpl) router(route *httprouter.Router) {
 	route.POST("/sellers/register", controller.RegisterSeller)
 	route.POST("/sellers/login", controller.LoginSeller)
-	route.PUT("/sellers", middleware.MindMiddleware(controller.UpdateSeller))
-	route.DELETE("/sellers", middleware.MindMiddleware(controller.DeleteSeller))
+	route.PUT("/sellers", middleware.CommonMiddleware(controller.UpdateSeller))
+	route.DELETE("/sellers", middleware.CommonMiddleware(controller.DeleteSeller))
 }
 
 // registerSeller

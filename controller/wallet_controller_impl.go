@@ -29,9 +29,9 @@ func NewWalletController(usecase usecase.WalletUsecase, route *httprouter.Router
 }
 
 func (controller *WalletControllerImpl) router(route *httprouter.Router) {
-	route.POST("/wallets", middleware.MindMiddleware(controller.AddWallet))
-	route.GET("/wallets", middleware.MindMiddleware(controller.GetWallet))
-	route.PUT("/wallets", middleware.MindMiddleware(controller.UpdateWallet))
+	route.POST("/wallets", middleware.CommonMiddleware(controller.AddWallet))
+	route.GET("/wallets", middleware.CommonMiddleware(controller.GetWallet))
+	route.PUT("/wallets", middleware.CommonMiddleware(controller.UpdateWallet))
 }
 
 // addWallet
